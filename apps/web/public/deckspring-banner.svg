@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="320" viewBox="0 0 1280 320" role="img" aria-label="Deckspring — create and refine slides with AI">
+<rect width="1280" height="320" fill="#101014"/>
+<path d="M0 319H1280" stroke="#DE3B3D" stroke-width="4"/>
+<svg x="72" y="54" width="210" height="210" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="110" fill="#101014"/>
+  <rect x="73" y="206" width="294" height="171" rx="24" fill="#383940" stroke="#8B8C96" stroke-width="9"/>
+  <rect x="145" y="129" width="294" height="171" rx="24" fill="#F6F5F2"/>
+  <path d="M195 244L251 221L297 230L382 168" fill="none" stroke="#DE3B3D" stroke-width="19" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="382" cy="168" r="10" fill="#DE3B3D"/>
+</svg>
+
+<text x="322" y="150" font-family="Arial, Helvetica, sans-serif" font-size="72" font-weight="700" fill="#F6F5F2">Deckspring</text>
+<text x="326" y="210" font-family="Arial, Helvetica, sans-serif" font-size="29" fill="#B5B5BC">Create and refine slides with AI</text>
+</svg>

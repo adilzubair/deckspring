@@ -1,0 +1,31 @@
+---
+title: Getting started
+description: Create your first local AI deck.
+---
+
+## Start Studio
+
+You need Node.js 20.19+ and pnpm 10.
+
+```bash
+git clone https://github.com/adilzubair/deckspring.git
+cd deckspring
+pnpm install
+pnpm dev:studio
+```
+
+Open [http://127.0.0.1:5173/](http://127.0.0.1:5173/). Deckspring runs on loopback and keeps generated decks under `apps/studio/slides/`, which is excluded from Git by default.
+
+## Connect a model
+
+In the Slides view, add an OpenAI-compatible endpoint, model name, and API key if needed. Local endpoints can omit a key. Model URLs and names are saved in `apps/studio/.local/models.json`; keys stay in server memory for the session.
+
+## Create and edit
+
+Describe the deck you want and select **Generate**. Studio validates the model's structured response and writes editable React pages. Open a deck to adjust text and layout in the visual inspector, add assets, present, or export it.
+
+To use a coding agent, open this repository in your editor and ask it to edit a deck under `apps/studio/slides/<id>/`. The bundled slide-authoring skills explain the page contract.
+
+## Framework development
+
+Run `pnpm dev:demo` to exercise the underlying framework against example decks. `@deckspring/core` and `@deckspring/cli` are local workspace names; the external starter CLI is not available through npm yet.

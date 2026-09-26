@@ -1,0 +1,18 @@
+{
+  "title": "deckspring",
+  "pages": [
+    "index",
+    "getting-started",
+    "migrate-to-v2",
+    "---Core feature---",
+    "...core-feature",
+    "---Primitive---",
+    "...primitive",
+    "---Skills---",
+    "...skills",
+    "---CLI---",
+    "...cli",
+    "---Reference---",
+    "...reference"
+  ]
+}

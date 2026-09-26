@@ -1,0 +1,36 @@
+{
+  "name": "deckspring",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@10.17.0",
+  "scripts": {
+    "dev": "turbo run dev",
+    "dev:web": "turbo run dev --filter=web",
+    "dev:demo": "turbo run dev --filter=demo",
+    "dev:studio": "turbo run dev --filter=studio",
+    "dev:video": "turbo run dev --filter=launch-video",
+    "cover": "pnpm --filter cover render",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
+    "check": "biome check .",
+    "check:fix": "biome check --write .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "pnpm --filter @deckspring/core test:e2e",
+    "core": "pnpm --filter @deckspring/core",
+    "cli": "pnpm --filter @deckspring/cli",
+    "changeset": "changeset",
+    "version-packages": "changeset version"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.7",
+    "@changesets/changelog-github": "^0.7.0",
+    "@changesets/cli": "^3.0.2",
+    "turbo": "^2.11.2",
+    "vitest": "^5.0.0"
+  }
+}

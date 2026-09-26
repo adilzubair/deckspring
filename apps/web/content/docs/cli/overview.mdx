@@ -1,0 +1,26 @@
+---
+title: Overview
+description: Local runtime commands and the planned starter CLI.
+---
+
+Deckspring currently uses its runtime CLI inside this repository. The starter CLI remains in source, but external `init` is deferred until the renamed core package is distributed.
+
+- **`@deckspring/cli`** — the scaffolder. One command (`init`) to bootstrap
+  a new workspace.
+- **`@deckspring/core`** — the runtime CLI. `dev`, `build`, `preview`, and
+  `sync:skills` for an existing workspace.
+
+After `init`, `package.json` exposes the runtime CLI under standard scripts:
+
+```json
+{
+  "scripts": {
+    "dev": "deckspring dev",
+    "build": "deckspring build",
+    "preview": "deckspring preview",
+    "sync:skills": "deckspring sync:skills"
+  }
+}
+```
+
+These scripts describe the in-repository starter template. For the supported local setup, run `pnpm dev:studio` from the repository root.

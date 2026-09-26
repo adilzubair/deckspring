@@ -1,0 +1,29 @@
+---
+title: Introduction
+description: Create and refine slide decks locally with AI.
+---
+
+# Deckspring
+
+Deckspring turns a prompt into an editable presentation. Connect your own OpenAI-compatible model, generate a deck, and refine it in the browser. Decks are saved as React source on your machine. You can present them or export HTML, PDF, and PowerPoint.
+
+```bash
+git clone https://github.com/adilzubair/deckspring.git
+cd deckspring
+pnpm install
+pnpm dev:studio
+```
+
+Open [http://127.0.0.1:5173/](http://127.0.0.1:5173/) and add a model connection in the Slides view. See [Getting started](/docs/getting-started) for the full flow.
+
+## Under the canvas
+
+Every page renders into a fixed **1920 × 1080** canvas. The underlying `@deckspring/core` runtime scales it, provides the inspector and presenter view, and keeps slide source editable. The package name is local to this repository; no Deckspring package has been published on npm yet.
+
+## What's next
+
+<Cards>
+  <Card title="Get started" href="/docs/getting-started" />
+  <Card title="Inspector & comments" href="/docs/core-feature/inspector" />
+  <Card title="Present mode" href="/docs/core-feature/present-mode" />
+</Cards>

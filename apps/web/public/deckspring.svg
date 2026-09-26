@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Deckspring rising slide mark">
+  <rect width="512" height="512" rx="110" fill="#101014"/>
+  <rect x="73" y="206" width="294" height="171" rx="24" fill="#383940" stroke="#8B8C96" stroke-width="9"/>
+  <rect x="145" y="129" width="294" height="171" rx="24" fill="#F6F5F2"/>
+  <path d="M195 244L251 221L297 230L382 168" fill="none" stroke="#DE3B3D" stroke-width="19" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="382" cy="168" r="10" fill="#DE3B3D"/>
+</svg>

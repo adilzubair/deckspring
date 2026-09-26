@@ -1,0 +1,10 @@
+name: Package release is disabled
+
+on:
+  workflow_dispatch:
+
+jobs:
+  notice:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Deckspring packages are private and are not published on npm."

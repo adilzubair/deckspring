@@ -1,0 +1,22 @@
+{
+  "name": "demo",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "deckspring dev",
+    "build": "deckspring build",
+    "preview": "deckspring preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@deckspring/core": "workspace:*",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
+    "typescript": "7.0.2"
+  }
+}

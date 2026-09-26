@@ -1,0 +1,25 @@
+{
+  "name": "studio",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node server.mjs",
+    "build": "deckspring build",
+    "typecheck": "node --check server.mjs && node --check model.mjs && node --check deck.mjs && node --check comment-edits.mjs && tsc --noEmit",
+    "test": "node --test deck.test.mjs model.test.mjs comment-edits.test.mjs"
+  },
+  "dependencies": {
+    "@babel/parser": "^7.29.2",
+    "@biomejs/biome": "2.5.7",
+    "@deckspring/core": "workspace:*",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "vite": "^8.3.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
+    "typescript": "^7.0.2"
+  }
+}

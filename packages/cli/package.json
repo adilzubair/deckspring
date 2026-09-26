@@ -1,0 +1,54 @@
+{
+  "name": "@deckspring/cli",
+  "version": "0.1.0",
+  "description": "Deckspring workspace scaffolder, pending package distribution.",
+  "type": "module",
+  "bin": {
+    "deckspring": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "template",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "node scripts/sync-template-skills.mjs && tsdown",
+    "typecheck": "tsc --noEmit",
+    "sync:template-skills": "node scripts/sync-template-skills.mjs",
+    "prepack": "pnpm build"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "keywords": [
+    "slides",
+    "presentation",
+    "claude-code",
+    "scaffold"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "Deckspring contributors",
+    "url": "https://github.com/adilzubair/deckspring"
+  },
+  "homepage": "https://github.com/adilzubair/deckspring",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adilzubair/deckspring.git",
+    "directory": "packages/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/adilzubair/deckspring/issues"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.7.0",
+    "chalk": "^6.0.0",
+    "commander": "^15.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.2",
+    "tsdown": "^0.22.14",
+    "typescript": "^7.0.2"
+  },
+  "private": true
+}

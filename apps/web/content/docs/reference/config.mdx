@@ -1,0 +1,135 @@
+---
+title: deckspring.config.ts
+description: Workspace-level configuration.
+---
+
+The config lives at the workspace root and is fully optional — every field
+has a sensible default.
+
+```ts title="deckspring.config.ts"
+import type { DeckspringConfig } from '@deckspring/core';
+
+const config: DeckspringConfig = {};
+
+export default config;
+```
+
+## Schema
+
+<TypeTable
+  type={{
+    base: {
+      type: 'string',
+      default: "'/'",
+      description: 'Base public path for subpath hosting (leading + trailing slash).',
+    },
+    slidesDir: {
+      type: 'string',
+      default: "'slides'",
+      description: 'Folder that contains your decks.',
+    },
+    themesDir: {
+      type: 'string',
+      default: "'themes'",
+      description: 'Folder that holds theme markdown + demo files.',
+    },
+    assetsDir: {
+      type: 'string',
+      default: "'assets'",
+      description: 'Folder for global assets shared across decks.',
+    },
+    port: {
+      type: 'number',
+      default: 'first free port from 5173 upward',
+      description: 'Dev server port.',
+    },
+    allowedHosts: {
+      type: 'string[] | true',
+      default: "Vite's default host check",
+      description: 'Hostnames the dev/preview server responds to. `true` allows any host.',
+    },
+    build: {
+      type: 'DeckspringBuildConfig',
+      default: 'all toggles on',
+      description: 'Build-time UI toggles (see below).',
+    },
+    locale: {
+      type: 'Locale',
+      deprecated: true,
+      description: 'Seeds the runtime UI language until one is picked in-app.',
+    },
+  }}
+/>
+
+### `build`
+
+Every toggle is on by default and only takes effect in the static build; the
+dev server always shows the full UI.
+
+<TypeTable
+  type={{
+    showSlideBrowser: {
+      type: 'boolean',
+      default: 'true',
+      description: 'Show the deck index (the slide browser) in the static build.',
+    },
+    showSlideUi: {
+      type: 'boolean',
+      default: 'true',
+      description: 'Show on-canvas UI (toolbar, hints) in the static build.',
+    },
+    allowHtmlDownload: {
+      type: 'boolean',
+      default: 'true',
+      description: 'Show the export menu (HTML, PDF, image PPTX) in the static build.',
+    },
+  }}
+/>
+
+## Common recipes
+
+### Public share
+
+Hide the slide browser, on-canvas UI, and export menu with the `build`
+toggles — see [Export](/docs/core-feature/export) for the annotated
+example.
+
+### Host under a subpath
+
+Set `base` to deploy the build under a sub-directory instead of the domain
+root — GitHub Pages project sites, a reverse-proxy folder, an intranet path.
+Use a leading and trailing slash:
+
+```ts
+const config: DeckspringConfig = {
+  base: '/my-slides/',
+};
+```
+
+The value is passed straight to Vite's `base` and to React Router's
+`basename`, so client-side navigation matches the deployed path.
+
+### Remote IDE / proxied dev server
+
+Cloud workspaces (Coder, Codespaces, Gitpod, …) reach the dev server through
+a generated domain, so Vite blocks the request with
+`Blocked request. This host (…) is not allowed.` Allow your workspace domain
+— a leading dot matches every subdomain:
+
+```ts
+const config: DeckspringConfig = {
+  allowedHosts: ['.my-workspace.example.com'],
+};
+```
+
+Or set `allowedHosts: true` to accept any host. Only do this on a trusted
+network — it disables Vite's DNS-rebinding protection. The value is passed
+straight to Vite's
+[`server.allowedHosts`](https://vite.dev/config/server-options#server-allowedhosts)
+and also applies to `deckspring preview`.
+
+### Organizing many decks
+
+`slidesDir` is a single path and decks must sit directly inside it
+(`slides/<id>/index.tsx` — nested folders are not discovered). To group
+decks, use the in-app sidebar folders (stored in `slides/.folders.json`).
