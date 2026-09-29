@@ -208,6 +208,7 @@ export function ThemeEditor({ themeId }: { themeId?: string }) {
           models={models}
           modelsLoading={modelsLoading}
           selectedId={selectedId}
+          selected={selected}
           choose={choose}
           openManager={openManager}
           generating={generating}
@@ -262,6 +263,7 @@ function ThemeSource({
   models,
   modelsLoading,
   selectedId,
+  selected,
   choose,
   openManager,
   generating,
@@ -278,6 +280,7 @@ function ThemeSource({
   models: ReturnType<typeof useStudioModels>['models'];
   modelsLoading: boolean;
   selectedId: string;
+  selected: ReturnType<typeof useStudioModels>['selected'];
   choose: (value: string) => void;
   openManager: ReturnType<typeof useStudioModels>['openManager'];
   generating: boolean;
@@ -353,6 +356,11 @@ function ThemeSource({
         <Button type="button" variant="outline" onClick={() => openManager()}>
           {copy.addModel}
         </Button>
+        {selected && (
+          <Button type="button" variant="outline" onClick={() => openManager(selected)}>
+            {copy.editModel}
+          </Button>
+        )}
         <Button type="button" variant="brand" disabled={generating} onClick={generateDraft}>
           {generating ? (
             <Loader2 className="animate-spin motion-reduce:animate-none" />

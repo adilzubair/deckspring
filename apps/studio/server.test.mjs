@@ -67,9 +67,15 @@ test('theme API proposes, creates, reads, duplicates, repairs, and safely delete
   );
 
   let modelReply = JSON.stringify(themeSpec);
+  let requiredKey = '';
   const modelServer = http.createServer(async (request, response) => {
     for await (const _chunk of request) {
       // Drain the request before responding, like an OpenAI-compatible endpoint.
+    }
+    if (requiredKey && request.headers.authorization !== `Bearer ${requiredKey}`) {
+      response.writeHead(401, { 'content-type': 'application/json' });
+      response.end(JSON.stringify({ error: 'Missing API key' }));
+      return;
     }
     response.writeHead(200, { 'content-type': 'application/json' });
     response.end(JSON.stringify({ choices: [{ message: { content: modelReply } }] }));
@@ -96,6 +102,16 @@ test('theme API proposes, creates, reads, duplicates, repairs, and safely delete
     });
     assert.equal(added.response.status, 201);
     const modelId = added.body.model.id;
+
+    requiredKey = 'test-session-key';
+    const missingKey = await request('POST', `/models/${modelId}/test`, {});
+    assert.match(missingKey.body.error, /requires an API key/);
+    const temporaryKey = await request('POST', `/models/${modelId}/test`, {
+      apiKey: requiredKey,
+    });
+    assert.equal(temporaryKey.response.status, 200);
+    assert.equal((await request('GET', '/models')).body.models[0].hasKey, false);
+    requiredKey = '';
 
     for (const source of [
       { kind: 'prompt', prompt: 'A clear cobalt editorial system with precise rules.' },

@@ -491,10 +491,13 @@ export async function handleApi(req, res) {
     if (method === 'POST' && testMatch) {
       const profile = profiles.find((item) => item.id === testMatch[1]);
       if (!profile) return sendJson(res, 404, { error: 'Model not found.' });
-      await readJson(req);
+      const body = await readJson(req);
+      if (body.apiKey !== undefined && typeof body.apiKey !== 'string') {
+        throw new Error('API key must be text.');
+      }
       await callModel(
         profile,
-        keys.get(profile.id),
+        body.apiKey?.trim() || keys.get(profile.id),
         [{ role: 'user', content: 'Reply with OK.' }],
         12,
       );

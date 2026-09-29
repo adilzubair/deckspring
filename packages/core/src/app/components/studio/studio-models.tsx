@@ -149,7 +149,11 @@ export function StudioModelsProvider({
     setDialogBusy(true);
     setDialogStatus(copy.contacting);
     try {
-      await studioApi('POST', `/models/${editingId}/test`, {});
+      await studioApi(
+        'POST',
+        `/models/${editingId}/test`,
+        form.apiKey.trim() ? { apiKey: form.apiKey.trim() } : {},
+      );
       setDialogStatus(copy.connectionWorks);
     } catch (caught) {
       setDialogStatus(studioError(caught));

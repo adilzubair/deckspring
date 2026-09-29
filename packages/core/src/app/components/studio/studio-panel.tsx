@@ -273,7 +273,6 @@ export function StudioPanel() {
               </p>
             )}
             {models.map((model) => {
-              const ready = model.hasKey || isLocalModel(model);
               const active = model.id === selectedId;
               return (
                 <div
@@ -294,7 +293,12 @@ export function StudioPanel() {
                       {model.name}
                     </span>
                     <span className="mt-0.5 block truncate text-[12.5px] text-muted-foreground">
-                      {model.model} · {ready ? copy.ready : copy.needsKey}
+                      {model.model} ·{' '}
+                      {model.hasKey
+                        ? copy.ready
+                        : isLocalModel(model)
+                          ? copy.localNoKey
+                          : copy.needsKey}
                     </span>
                   </button>
                   <Button

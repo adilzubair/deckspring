@@ -73,9 +73,19 @@ export async function callModel(profile, key, messages, maxTokens = 6500) {
     const raw = await response.text();
     try {
       const body = JSON.parse(raw);
-      detail = body?.error?.message ?? body?.message ?? '';
+      detail =
+        (typeof body?.error === 'string' ? body.error : body?.error?.message) ??
+        body?.message ??
+        '';
     } catch {
       detail = raw.slice(0, 250);
+    }
+    if (response.status === 401) {
+      throw new Error(
+        key
+          ? 'The model endpoint rejected the API key. Edit the model connection and check its key.'
+          : 'This model endpoint requires an API key. Edit the model connection and enter its key.',
+      );
     }
     throw new Error(`Model request failed (${response.status})${detail ? `: ${detail}` : '.'}`);
   }

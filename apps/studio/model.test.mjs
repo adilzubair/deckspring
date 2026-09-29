@@ -32,6 +32,19 @@ test('requires credentials for remote endpoints but permits local models', async
   );
 });
 
+test('explains when a local model endpoint requires an API key', async (context) => {
+  context.mock.method(globalThis, 'fetch', async () =>
+    Response.json({ error: 'Missing API key' }, { status: 401 }),
+  );
+  await assert.rejects(
+    () =>
+      callModel({ baseUrl: 'http://127.0.0.1:8317/v1', model: 'model' }, '', [
+        { role: 'user', content: 'Hello' },
+      ]),
+    /requires an API key\. Edit the model connection/,
+  );
+});
+
 test('reads common text responses and fenced JSON', () => {
   assert.equal(textFromCompletion({ choices: [{ message: { content: 'Hello' } }] }), 'Hello');
   assert.deepEqual(parseModelJson('```json\n{"title":"Deck"}\n```'), { title: 'Deck' });
