@@ -1,4 +1,12 @@
-import { ArrowLeft, ChevronLeft, ChevronRight, Loader2, Save, Sparkles } from 'lucide-react';
+import {
+  ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  RotateCcw,
+  Save,
+  Sparkles,
+} from 'lucide-react';
 import {
   type CSSProperties,
   cloneElement,
@@ -651,6 +659,7 @@ function ThemeFields({
               ['dot', copy.themeDot],
               ['frame', copy.themeFrame],
               ['glow', copy.themeGlow],
+              ['pixel', copy.themePixel],
             ]}
           />
         </div>
@@ -787,12 +796,21 @@ function ThemeDraftPreview({
   rtl: boolean;
 }) {
   const [page, setPage] = useState(0);
+  const [replay, setReplay] = useState(0);
+  const [animate, setAnimate] = useState(false);
   return (
     <div>
       <div className="aspect-video overflow-hidden rounded-[8px] border border-hairline bg-card shadow-floating ring-1 ring-foreground/[0.05]">
-        <SlideCanvas flat freezeMotion>
+        <SlideCanvas flat freezeMotion={!animate}>
           <SlidePageProvider index={page} total={3}>
-            <PreviewPage spec={spec} page={page} copy={copy} rtl={rtl} />
+            <PreviewPage
+              key={`${page}-${replay}`}
+              spec={spec}
+              page={page}
+              copy={copy}
+              rtl={rtl}
+              animate={animate}
+            />
           </SlidePageProvider>
         </SlideCanvas>
       </div>
@@ -803,7 +821,10 @@ function ThemeDraftPreview({
           size="icon-sm"
           aria-label={copy.themePreviewPrevious}
           disabled={page === 0}
-          onClick={() => setPage((value) => Math.max(0, value - 1))}
+          onClick={() => {
+            setAnimate(true);
+            setPage((value) => Math.max(0, value - 1));
+          }}
         >
           <ChevronLeft className={rtl ? 'rotate-180' : undefined} />
         </Button>
@@ -812,11 +833,26 @@ function ThemeDraftPreview({
         </span>
         <Button
           type="button"
+          variant="ghost"
+          size="xs"
+          aria-label={copy.themePreviewReplay}
+          onClick={() => {
+            setAnimate(true);
+            setReplay((value) => value + 1);
+          }}
+        >
+          <RotateCcw /> {copy.themePreviewReplay}
+        </Button>
+        <Button
+          type="button"
           variant="outline"
           size="icon-sm"
           aria-label={copy.themePreviewNext}
           disabled={page === 2}
-          onClick={() => setPage((value) => Math.min(2, value + 1))}
+          onClick={() => {
+            setAnimate(true);
+            setPage((value) => Math.min(2, value + 1));
+          }}
         >
           <ChevronRight className={rtl ? 'rotate-180' : undefined} />
         </Button>
@@ -830,11 +866,13 @@ function PreviewPage({
   page,
   copy,
   rtl,
+  animate,
 }: {
   spec: ThemeSpecV1;
   page: number;
   copy: (typeof studioCopy)['en'] | (typeof studioCopy)['ar'];
   rtl: boolean;
+  animate: boolean;
 }) {
   const p = spec.palette;
   const align = spec.layout.alignment === 'center' ? 'center' : rtl ? 'flex-end' : 'flex-start';
@@ -854,7 +892,19 @@ function PreviewPage({
     flexDirection: 'column',
   };
   return (
-    <div style={base}>
+    <div
+      className="studio-theme-preview-motion"
+      style={{
+        ...base,
+        animation:
+          animate && spec.motion !== 'static'
+            ? `studio-theme-preview-${spec.motion} ${spec.motion === 'rich' ? 780 : 480}ms cubic-bezier(0.22, 1, 0.36, 1) both`
+            : undefined,
+      }}
+    >
+      <style>{`@keyframes studio-theme-preview-subtle { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes studio-theme-preview-rich { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .studio-theme-preview-motion { animation: none !important; } }`}</style>
       <PreviewMark spec={spec} rtl={rtl} />
       {page === 1 ? (
         <div style={{ position: 'relative', zIndex: 1 }}>
@@ -982,6 +1032,32 @@ function PreviewEyebrow({ spec, children }: { spec: ThemeSpecV1; children: React
 
 function PreviewMark({ spec, rtl }: { spec: ThemeSpecV1; rtl: boolean }) {
   const p = spec.palette;
+  if (spec.motif === 'pixel')
+    return (
+      <div
+        style={{
+          position: 'absolute',
+          [rtl ? 'left' : 'right']: 100,
+          top: 100,
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 54px)',
+          gap: 6,
+          transform: 'rotate(-9deg)',
+        }}
+      >
+        {['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'].map((slot, index) => (
+          <div
+            key={slot}
+            style={{
+              width: 54,
+              height: 54,
+              background: index % 4 === 0 ? p.accent : p.surface,
+              boxShadow: `inset 5px 5px 0 ${p.border}, inset -5px -5px 0 #00000066`,
+            }}
+          />
+        ))}
+      </div>
+    );
   if (spec.motif === 'glow')
     return (
       <div

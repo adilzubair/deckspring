@@ -6,7 +6,14 @@ import { fileURLToPath } from 'node:url';
 import { createViteConfig } from '@deckspring/core/vite';
 import { createServer } from 'vite';
 import { buildCommentProposal, makeCommentPrompt, readComments } from './comment-edits.mjs';
-import { deckPrompt, makeDeckId, renderDeckSource, THEMES, validateDeck } from './deck.mjs';
+import {
+  deckPrompt,
+  makeDeckId,
+  renderDeckSource,
+  resolveDeckMotion,
+  THEMES,
+  validateDeck,
+} from './deck.mjs';
 import { callModel, chatCompletionsUrl, parseModelJson } from './model.mjs';
 import { installStarterThemes } from './presets.mjs';
 import {
@@ -530,6 +537,10 @@ export async function handleApi(req, res) {
       } else {
         throw new Error('Choose a valid visual style.');
       }
+      resolveDeckMotion(
+        body.motion,
+        typeof resolvedStyle === 'string' ? 'static' : resolvedStyle.spec.motion,
+      );
       if (language !== 'en' && language !== 'ar') throw new Error('Choose English or Arabic.');
       if (typeof requestId !== 'string' || !/^[a-f0-9-]{36}$/.test(requestId)) {
         throw new Error('Generation request ID is invalid.');
@@ -552,9 +563,11 @@ export async function handleApi(req, res) {
         const id = makeDeckId(deck.title);
         await fs.mkdir(path.join(SLIDES_ROOT, id), { recursive: false });
         const file = path.join(SLIDES_ROOT, id, 'index.tsx');
-        await fs.writeFile(file, renderDeckSource(deck, resolvedStyle, undefined, language), {
-          flag: 'wx',
-        });
+        await fs.writeFile(
+          file,
+          renderDeckSource(deck, resolvedStyle, undefined, language, body.motion),
+          { flag: 'wx' },
+        );
         await formatDeck(file);
         const result = { id, title: deck.title, url: `/s/${encodeURIComponent(id)}` };
         generationJobs.set(requestId, { status: 'done', createdAt: Date.now(), deck: result });

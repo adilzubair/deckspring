@@ -39,7 +39,7 @@ export type ThemeSpecV1 = {
     padding: number;
     radius: number;
   };
-  motif: 'line' | 'block' | 'dot' | 'frame' | 'glow';
+  motif: 'line' | 'block' | 'dot' | 'frame' | 'glow' | 'pixel';
   motion: 'static' | 'subtle' | 'rich';
   aesthetic: string;
 };

@@ -89,6 +89,45 @@ test('offers a keyboard-accessible empty-state CTA and both theme source modes',
   await expect(page.getByLabel('What should this theme feel like?')).toBeVisible();
 });
 
+test('previews deck motion and sends validated choices with generation', async ({ page }) => {
+  await mockStudio(page);
+  await page.route('**/__studio/generate', async (route) => {
+    await route.fulfill({ status: 400, json: { error: 'Stopped before model call.' } });
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+
+  await page.getByLabel('Content entrance').selectOption('rich');
+  await page.getByLabel('Between pages').selectOption('slide');
+  await page.getByRole('checkbox', { name: /Reveal bullet points/ }).check();
+  await page.getByRole('button', { name: 'Next', exact: true }).click();
+  await expect(page.getByText('Page 1', { exact: true })).toBeVisible();
+  for (let index = 0; index < 3; index++) {
+    await page.getByRole('button', { name: 'Next', exact: true }).click();
+  }
+  await expect(page.getByText('Page 2', { exact: true })).toBeVisible();
+  expect(
+    await page
+      .locator('.studio-motion-animation')
+      .first()
+      .evaluate((element) => {
+        return getComputedStyle(element).animationName;
+      }),
+  ).toBe('none');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
+
+  await page
+    .getByLabel('What should this presentation cover?')
+    .fill('A concise product story with a clear opening, evidence, and next steps.');
+  const generation = page.waitForRequest((request) => request.url().endsWith('/__studio/generate'));
+  await page.getByRole('button', { name: 'Generate deck' }).click();
+  expect((await generation).postDataJSON()).toMatchObject({
+    motion: { entrance: 'rich', transition: 'slide', revealBullets: true },
+  });
+});
+
 test('keeps an unsaved draft when navigation is canceled and leaves when discarded', async ({
   page,
 }) => {

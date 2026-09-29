@@ -80,19 +80,79 @@ export function makeDeckId(title) {
   return `${slug}-${randomBytes(3).toString('hex')}`;
 }
 
+const ENTRANCE_CHOICES = new Set(['theme', 'static', 'subtle', 'rich']);
+const TRANSITION_CHOICES = new Set(['theme', 'cut', 'fade', 'rise', 'slide']);
+
+export function resolveDeckMotion(raw, themeMotion = 'static') {
+  if (raw != null && (typeof raw !== 'object' || Array.isArray(raw))) {
+    throw new Error('Choose valid motion settings.');
+  }
+  const entrance = raw?.entrance ?? 'theme';
+  const transition = raw?.transition ?? 'cut';
+  const revealBullets = raw?.revealBullets ?? false;
+  if (!ENTRANCE_CHOICES.has(entrance) || !TRANSITION_CHOICES.has(transition)) {
+    throw new Error('Choose valid motion settings.');
+  }
+  if (typeof revealBullets !== 'boolean') {
+    throw new Error('Choose whether bullet points reveal one at a time.');
+  }
+  if (!['static', 'subtle', 'rich'].includes(themeMotion)) {
+    throw new Error('Choose a valid theme motion level.');
+  }
+  return {
+    entrance: entrance === 'theme' ? themeMotion : entrance,
+    transition:
+      transition === 'theme'
+        ? themeMotion === 'static'
+          ? 'cut'
+          : themeMotion === 'subtle'
+            ? 'fade'
+            : 'rise'
+        : transition,
+    revealBullets,
+  };
+}
+
+function renderTransitionSource(kind, language) {
+  if (kind === 'cut') return '';
+  const duration = kind === 'slide' ? 420 : kind === 'rise' ? 360 : 260;
+  const start =
+    kind === 'slide'
+      ? { opacity: 0, transform: `translateX(${language === 'ar' ? '-80px' : '80px'})` }
+      : kind === 'rise'
+        ? { opacity: 0, transform: 'translateY(22px)' }
+        : { opacity: 0 };
+  const end =
+    kind === 'fade'
+      ? { opacity: 1 }
+      : { opacity: 1, transform: kind === 'slide' ? 'translateX(0)' : 'translateY(0)' };
+  return `export const transition: SlideTransition = ${JSON.stringify({
+    duration,
+    enter: {
+      keyframes: [start, end],
+      duration,
+      easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+    },
+    exit: { keyframes: [{ opacity: 1 }, { opacity: 1 }], duration },
+  })};
+`;
+}
+
 export function renderDeckSource(
   deck,
   style,
   createdAt = new Date().toISOString(),
   language = 'en',
+  motionOptions,
 ) {
   if (language !== 'en' && language !== 'ar') throw new Error('Choose a valid language.');
   const resolved = resolveDeckStyle(style);
+  const motion = resolveDeckMotion(motionOptions, resolved.visual.motion);
   const data = JSON.stringify(deck.slides, null, 2);
   const colors = JSON.stringify(resolved.colors);
   const themeMeta = resolved.themeId ? `, theme: ${JSON.stringify(resolved.themeId)}` : '';
   return `import type { CSSProperties } from 'react';
-import type { Page, SlideMeta } from '@deckspring/core';
+import { Step, Steps, type Page, type SlideMeta${motion.transition === 'cut' ? '' : ', type SlideTransition'} } from '@deckspring/core';
 
 type SlideData = {
   layout: 'cover' | 'statement' | 'bullets' | 'comparison' | 'closing';
@@ -108,7 +168,8 @@ type SlideData = {
 };
 
 const colors = ${colors};
-const visual = ${JSON.stringify(resolved.visual)};
+const visual = ${JSON.stringify({ ...resolved.visual, motion: motion.entrance })};
+const motion = ${JSON.stringify(motion)};
 const rtl = ${language === 'ar'};
 const motionCss = visual.motion === 'static' ? '' :
   \`@keyframes ds-theme-enter { from { opacity: 0; transform: translateY(\${visual.motion === 'rich' ? '24px' : '14px'}); } to { opacity: 1; transform: translateY(0); } }
@@ -130,12 +191,16 @@ const frame: CSSProperties = {
   textAlign: rtl ? 'right' : 'left',
 };
 
-function BulletList({ items }: { items: string[] }) {
-  return <div style={{ display: 'grid', gap: 29, marginTop: 48 }}>
-    {items.map((item, index) => <div key={index} style={{ display: 'flex', alignItems: 'flex-start', gap: 25, fontSize: 37, lineHeight: 1.25 }}>
+function BulletRow({ item }: { item: string }) {
+  return <div style={{ display: 'flex', alignItems: 'flex-start', gap: 25, fontSize: 37, lineHeight: 1.25 }}>
       <span style={{ width: 12, height: 12, marginTop: 17, flexShrink: 0, borderRadius: 99, background: colors.accent }} />
       <span>{item}</span>
-    </div>)}
+    </div>;
+}
+
+function BulletList({ items }: { items: string[] }) {
+  return <div style={{ display: 'grid', gap: 29, marginTop: 48 }}>
+    {motion.revealBullets ? <Steps>{items.map((item, index) => <Step key={index} duration={visual.motion === 'rich' ? 300 : 180}><BulletRow item={item} /></Step>)}</Steps> : items.map((item, index) => <BulletRow key={index} item={item} />)}
   </div>;
 }
 
@@ -145,7 +210,7 @@ function SlideContent({ item, index }: { item: SlideData; index: number }) {
   const contentMaxWidth = visual.composition === 'poster' ? 1120 : visual.composition === 'split' ? 1380 : 1500;
   return <div lang={rtl ? 'ar' : 'en'} style={frame}>
     <style>{motionCss}</style>
-    {visual.motif === 'glow' ? <div style={{ position: 'absolute', [rtl ? 'left' : 'right']: -215, top: -245, width: 800, height: 800, borderRadius: '50%', background: \`radial-gradient(circle, \${colors.accent}88, transparent 68%)\` }} /> : visual.motif === 'frame' ? <div style={{ position: 'absolute', inset: 42, border: \`3px solid \${colors.soft}\`, borderRadius: visual.radius }} /> : visual.motif === 'block' ? <div style={{ position: 'absolute', [rtl ? 'left' : 'right']: 0, top: 0, width: 330, height: '100%', background: colors.soft }} /> : visual.motif === 'dot' ? <div style={{ position: 'absolute', [rtl ? 'left' : 'right']: 116, top: 120, width: 105, height: 105, borderRadius: '50%', background: colors.accent }} /> : <div style={{ position: 'absolute', left: 125, right: 125, top: 82, height: 8, background: colors.accent }} />}
+    {visual.motif === 'glow' ? <div style={{ position: 'absolute', [rtl ? 'left' : 'right']: -215, top: -245, width: 800, height: 800, borderRadius: '50%', background: \`radial-gradient(circle, \${colors.accent}88, transparent 68%)\` }} /> : visual.motif === 'frame' ? <div style={{ position: 'absolute', inset: 42, border: \`3px solid \${colors.soft}\`, borderRadius: visual.radius }} /> : visual.motif === 'block' ? <div style={{ position: 'absolute', [rtl ? 'left' : 'right']: 0, top: 0, width: 330, height: '100%', background: colors.soft }} /> : visual.motif === 'dot' ? <div style={{ position: 'absolute', [rtl ? 'left' : 'right']: 116, top: 120, width: 105, height: 105, borderRadius: '50%', background: colors.accent }} /> : visual.motif === 'pixel' ? <div style={{ position: 'absolute', [rtl ? 'left' : 'right']: 110, top: 100, display: 'grid', gridTemplateColumns: 'repeat(3, 56px)', gap: 6, transform: 'rotate(-9deg)' }}>{Array.from({ length: 9 }, (_, mark) => <div key={mark} style={{ width: 56, height: 56, background: mark % 4 === 0 ? colors.accent : colors.soft, boxShadow: \`inset 5px 5px 0 \${colors.border}, inset -5px -5px 0 #00000066\` }} />)}</div> : <div style={{ position: 'absolute', left: 125, right: 125, top: 82, height: 8, background: colors.accent }} />}
     <div className={visual.motion === 'static' ? undefined : 'ds-theme-enter'} style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ color: colors.accent, fontSize: 23, fontWeight: 700, letterSpacing: rtl ? 0 : '0.14em', textTransform: rtl ? 'none' : 'uppercase' }}>{item.kicker || (isCover ? (rtl ? 'عرض تقديمي' : 'Presentation') : 'Deckspring')}</div>
       {isCover || isClosing ? <div style={{ marginTop: 'auto', marginBottom: 'auto', maxWidth: 1280 }}>
@@ -175,6 +240,7 @@ function SlideContent({ item, index }: { item: SlideData; index: number }) {
 }
 
 export const meta: SlideMeta = { title: ${JSON.stringify(deck.title)}, createdAt: ${JSON.stringify(createdAt)}${themeMeta} };
+${renderTransitionSource(motion.transition, language)}
 export const notes = slideData.map((item) => item.notes);
 const pages: Page[] = slideData.map((item, index) => function SlidePage() {
   return <SlideContent item={item} index={index} />;

@@ -55,6 +55,16 @@ test('rejects unsafe IDs and malformed colors', () => {
   assert.throws(() => validateThemeSpec({ ...spec, palette: { ...spec.palette, accent: 'blue' } }));
 });
 
+test('accepts the trusted pixel motif for block-style themes', () => {
+  const pixel = validateThemeSpec({
+    ...spec,
+    motif: 'pixel',
+    layout: { ...spec.layout, radius: 0 },
+  });
+  assert.equal(parseThemeMarkdown(renderThemeMarkdown(pixel)).motif, 'pixel');
+  assert.match(renderThemeDemoSource(pixel), /theme\.motif === 'pixel'/);
+});
+
 test('builds prompt-only theme requests without asking for executable code', () => {
   const prompt = themePrompt({ kind: 'prompt', prompt: 'Airy museum labels and ultramarine ink.' });
   assert.match(prompt, /Return one JSON object only/);

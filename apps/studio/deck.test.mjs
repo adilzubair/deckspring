@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { deckPrompt, renderDeckSource, validateDeck } from './deck.mjs';
+import { deckPrompt, renderDeckSource, resolveDeckMotion, validateDeck } from './deck.mjs';
 
 const slide = {
   layout: 'cover',
@@ -81,4 +81,47 @@ test('renders a saved Studio theme and links the generated deck metadata', () =>
   assert.match(source, /padding: visual.padding/);
   assert.match(source, /visual\.composition/);
   assert.match(source, /prefers-reduced-motion/);
+});
+
+test('resolves and validates deck motion without accepting arbitrary effects', () => {
+  assert.deepEqual(resolveDeckMotion(undefined, 'rich'), {
+    entrance: 'rich',
+    transition: 'cut',
+    revealBullets: false,
+  });
+  assert.deepEqual(
+    resolveDeckMotion({ entrance: 'theme', transition: 'theme', revealBullets: true }, 'subtle'),
+    { entrance: 'subtle', transition: 'fade', revealBullets: true },
+  );
+  assert.throws(() => resolveDeckMotion({ entrance: 'spin' }), /motion settings/);
+  assert.throws(() => resolveDeckMotion({ transition: '<script>' }), /motion settings/);
+  assert.throws(() => resolveDeckMotion({ revealBullets: 'yes' }), /bullet points/);
+});
+
+test('renders selected page transitions and keyboard-paced bullet reveals', () => {
+  const deck = validateDeck(
+    {
+      title: 'Motion study',
+      slides: [
+        { ...slide, title: 'Opening' },
+        { ...slide, layout: 'bullets', title: 'Three ideas', bullets: ['One', 'Two', 'Three'] },
+      ],
+    },
+    2,
+  );
+  const source = renderDeckSource(deck, 'cobalt', '2026-09-29T00:00:00.000Z', 'en', {
+    entrance: 'rich',
+    transition: 'slide',
+    revealBullets: true,
+  });
+  assert.match(source, /export const transition: SlideTransition/);
+  assert.match(source, /translateX\(80px\)/);
+  assert.match(source, /<Steps>/);
+  assert.match(source, /<Step key=\{index\}/);
+  assert.match(source, /"revealBullets":true/);
+  assert.match(source, /prefers-reduced-motion/);
+  const arabic = renderDeckSource(deck, 'cobalt', '2026-09-29T00:00:00.000Z', 'ar', {
+    transition: 'slide',
+  });
+  assert.match(arabic, /translateX\(-80px\)/);
 });

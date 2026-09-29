@@ -21,6 +21,10 @@ async function withStudioDirs(run) {
 test('starter themes are validated and installed as trusted, paired Studio bundles', async () => {
   await withStudioDirs(async (themesRoot, localRoot) => {
     const ids = await installStarterThemes(themesRoot, localRoot);
+    assert.equal(ids.length, 10);
+    assert.ok(ids.includes('replit'));
+    assert.ok(ids.includes('minecraft'));
+    assert.ok(ids.includes('minecraft-nether'));
     assert.deepEqual(
       ids,
       STARTER_THEMES.map(({ id }) => id),
@@ -35,6 +39,26 @@ test('starter themes are validated and installed as trusted, paired Studio bundl
     assert.deepEqual(JSON.parse(await fs.readFile(path.join(localRoot, 'starter-themes.json'))), {
       installed: ids,
     });
+  });
+});
+
+test('an existing Studio receives new starter variants without replacing earlier themes', async () => {
+  await withStudioDirs(async (themesRoot, localRoot) => {
+    await fs.mkdir(localRoot);
+    await fs.writeFile(
+      path.join(localRoot, 'starter-themes.json'),
+      JSON.stringify({ installed: ['bright-sans', 'aurora', 'sticker-pop'] }),
+    );
+    await fs.writeFile(path.join(themesRoot, 'bright-sans.md'), '# Edited Bright Sans\n');
+    await installStarterThemes(themesRoot, localRoot);
+    assert.equal(
+      await fs.readFile(path.join(themesRoot, 'bright-sans.md'), 'utf8'),
+      '# Edited Bright Sans\n',
+    );
+    assert.match(
+      await fs.readFile(path.join(themesRoot, 'replit-night.md'), 'utf8'),
+      /Replit \/ Night/,
+    );
   });
 });
 

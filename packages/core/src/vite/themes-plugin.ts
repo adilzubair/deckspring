@@ -125,7 +125,7 @@ function studioSpec(frontmatter: Frontmatter, body: string) {
     colors.some((value) => !/^#[0-9a-f]{6}$/i.test(value)) ||
     !['editorial', 'modular', 'split', 'poster'].includes(spec.layout.composition) ||
     !['left', 'center'].includes(spec.layout.alignment) ||
-    !['line', 'block', 'dot', 'frame', 'glow'].includes(spec.motif) ||
+    !['line', 'block', 'dot', 'frame', 'glow', 'pixel'].includes(spec.motif) ||
     !['static', 'subtle', 'rich'].includes(spec.motion) ||
     !Number.isFinite(spec.typography.headingWeight) ||
     !Number.isFinite(spec.typography.bodyWeight) ||

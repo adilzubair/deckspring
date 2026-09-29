@@ -45,4 +45,10 @@ describe('Studio theme metadata', () => {
     expect(parseStudioThemeSpec(markdown.replace('#3157D5', 'blue'))).toBeNull();
     expect(parseStudioThemeSpec(markdown.replace('padding: 112', 'padding: 900'))).toBeNull();
   });
+
+  it('keeps validated pixel themes available to the Studio deck generator', () => {
+    expect(parseStudioThemeSpec(markdown.replace('motif: line', 'motif: pixel'))?.motif).toBe(
+      'pixel',
+    );
+  });
 });

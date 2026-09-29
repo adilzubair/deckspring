@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const port = 43118;
+const port = Number(process.env.DECKSPRING_STUDIO_E2E_PORT ?? 43118);
 
 export default defineConfig({
   testDir: './e2e/studio-tests',

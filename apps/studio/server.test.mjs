@@ -123,7 +123,7 @@ test('theme API proposes, creates, reads, duplicates, repairs, and safely delete
     }
 
     const created = await request('POST', '/themes', { id: 'api-signal', spec: themeSpec });
-    assert.equal(created.response.status, 201);
+    assert.equal(created.response.status, 201, JSON.stringify(created.body));
     assert.match(
       await fs.readFile(path.join(themesRoot, 'api-signal.md'), 'utf8'),
       /studio-spec: 1/,
@@ -156,6 +156,7 @@ test('theme API proposes, creates, reads, duplicates, repairs, and safely delete
       prompt: 'Create a short deck using the saved visual system.',
       pageCount: 3,
       style: { kind: 'theme', id: 'api-signal' },
+      motion: { entrance: 'rich', transition: 'rise', revealBullets: true },
       language: 'en',
     });
     assert.equal(generated.response.status, 201);
@@ -165,6 +166,21 @@ test('theme API proposes, creates, reads, duplicates, repairs, and safely delete
     );
     assert.match(generatedSource, /theme:\s*['"]api-signal['"]/);
     assert.match(generatedSource, /#3157D5/);
+    assert.match(generatedSource, /export const transition: SlideTransition/);
+    assert.match(generatedSource, /<Steps>/);
+    assert.match(generatedSource, /entrance: 'rich'/);
+
+    const invalidMotion = await request('POST', '/generate', {
+      requestId: randomUUID(),
+      modelId,
+      prompt: 'Create another short deck using the saved visual system.',
+      pageCount: 3,
+      style: { kind: 'theme', id: 'api-signal' },
+      motion: { entrance: 'spin' },
+      language: 'en',
+    });
+    assert.equal(invalidMotion.response.status, 400);
+    assert.match(invalidMotion.body.error, /motion settings/);
 
     const duplicated = await request('POST', '/themes/api-signal/duplicate', {
       id: 'api-signal-copy',

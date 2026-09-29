@@ -6,6 +6,7 @@ import { themes } from '../../lib/themes';
 import { isLocalModel, studioApi, studioError } from './studio-api';
 import { studioCopy } from './studio-copy';
 import { modelIsReady, useStudioModels } from './studio-models';
+import { type StudioMotion, StudioMotionControls } from './studio-motion';
 
 const PENDING_GENERATION_KEY = 'studio:pending-generation';
 
@@ -27,6 +28,11 @@ export function StudioPanel() {
   const [prompt, setPrompt] = useState('');
   const [pageCount, setPageCount] = useState(6);
   const [style, setStyle] = useState('builtin:cobalt');
+  const [motion, setMotion] = useState<StudioMotion>({
+    entrance: 'theme',
+    transition: 'theme',
+    revealBullets: false,
+  });
   const [deckLanguage, setDeckLanguage] = useState<'en' | 'ar'>(locale.id);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState('');
@@ -110,6 +116,7 @@ export function StudioPanel() {
         style: style.startsWith('theme:')
           ? { kind: 'theme', id: style.slice('theme:'.length) }
           : { kind: 'builtin', id: style.slice('builtin:'.length) },
+        motion,
         language: deckLanguage,
       });
       window.location.assign(deck.url);
@@ -228,12 +235,18 @@ export function StudioPanel() {
                 <option value="ar">{copy.arabic}</option>
               </select>
             </label>
-            <Button
-              type="submit"
-              variant="brand"
-              disabled={busy}
-              className="ms-auto h-10 text-[14px]"
-            >
+          </div>
+          <StudioMotionControls
+            value={motion}
+            onChange={setMotion}
+            themeMotion={
+              themes.find((theme) => `theme:${theme.id}` === style)?.studioSpec?.motion ?? 'static'
+            }
+            copy={copy}
+            rtl={locale.id === 'ar'}
+          />
+          <div className="mt-5 flex justify-end">
+            <Button type="submit" variant="brand" disabled={busy} className="h-10 text-[14px]">
               {busy ? <Loader2 className="size-3.5 animate-spin" /> : <Sparkles />}
               {busy ? copy.generating : copy.generate}
               {!busy && <ArrowUpRight />}
