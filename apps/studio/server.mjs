@@ -131,10 +131,14 @@ function checkedProfile(body, existing) {
 
 async function formatDeck(file) {
   await new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, [BIOME_BIN, 'check', '--write', file], {
-      cwd: ROOT,
-      stdio: 'ignore',
-    });
+    const child = spawn(
+      process.execPath,
+      [BIOME_BIN, 'check', '--write', '--vcs-enabled=false', file],
+      {
+        cwd: ROOT,
+        stdio: 'ignore',
+      },
+    );
     child.on('error', reject);
     child.on('close', (code) =>
       code === 0 ? resolve() : reject(new Error('Could not format the generated deck.')),
