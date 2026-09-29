@@ -98,6 +98,8 @@ export const studioCopy = {
     themeModelLabel: 'Design with model',
     themeGenerateDraft: 'Generate draft',
     themeGeneratingDraft: 'Designing theme…',
+    themeServerRestart:
+      'Theme tools were added after Studio started. Restart the Studio dev server, then try again.',
     themeImportTitle: 'Prepare this theme for Studio',
     themeImportDescription:
       'Studio will translate the existing recipe into editable tokens and a trusted preview. The files stay unchanged until you save.',
@@ -261,6 +263,8 @@ export const studioCopy = {
     themeModelLabel: 'التصميم باستخدام نموذج',
     themeGenerateDraft: 'إنشاء مسودة',
     themeGeneratingDraft: 'جارٍ تصميم السمة…',
+    themeServerRestart:
+      'أُضيفت أدوات السمات بعد تشغيل Studio. أعد تشغيل خادم تطوير Studio ثم حاول مرة أخرى.',
     themeImportTitle: 'إعداد هذه السمة لـ Studio',
     themeImportDescription:
       'سيحوّل Studio الوصفة الحالية إلى رموز قابلة للتحرير ومعاينة موثوقة. لن تتغير الملفات حتى تحفظ.',

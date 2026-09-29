@@ -21,6 +21,10 @@ export function studioError(error: unknown): string {
   return error instanceof Error ? error.message : 'Something went wrong.';
 }
 
+export function isMissingStudioRoute(error: unknown): boolean {
+  return error instanceof Error && error.message === 'Route not found.';
+}
+
 export function isLocalModel(profile: StudioModel): boolean {
   try {
     return ['localhost', '127.0.0.1', '[::1]'].includes(new URL(profile.baseUrl).hostname);

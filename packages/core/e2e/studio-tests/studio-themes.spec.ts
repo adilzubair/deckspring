@@ -115,6 +115,20 @@ test('edits a generated theme against the preview and saves explicit data', asyn
   });
 });
 
+test('explains how to recover when the running Studio server is stale', async ({ page }) => {
+  await mockStudio(page);
+  await page.route('**/__studio/themes/propose', async (route) => {
+    await route.fulfill({ status: 404, json: { error: 'Route not found.' } });
+  });
+  await page.goto('/themes/new');
+  await page
+    .getByLabel('What should this theme feel like?')
+    .fill('A warm editorial system with generous whitespace and crisp serif typography.');
+  await page.getByRole('button', { name: 'Generate draft' }).click();
+
+  await expect(page.getByText(/Restart the Studio dev server/)).toBeVisible();
+});
+
 test('edits, duplicates, repairs, deletes, and imports themes from the gallery', async ({
   page,
 }) => {

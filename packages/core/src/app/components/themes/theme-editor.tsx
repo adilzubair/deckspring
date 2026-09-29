@@ -15,7 +15,7 @@ import { SlidePageProvider } from '../../lib/page-context';
 import { slideIds } from '../../lib/slides';
 import type { ThemeSpecV1 } from '../../lib/themes';
 import { SlideCanvas } from '../slide-canvas';
-import { studioApi, studioError } from '../studio/studio-api';
+import { isMissingStudioRoute, studioApi, studioError } from '../studio/studio-api';
 import { studioCopy } from '../studio/studio-copy';
 import { modelIsReady, useStudioModels } from '../studio/studio-models';
 
@@ -131,7 +131,11 @@ export function ThemeEditor({ themeId }: { themeId?: string }) {
       setLegacy(false);
       setDirty(true);
     } catch (caught) {
-      setError(studioError(caught) || copy.themeDraftFailed);
+      setError(
+        isMissingStudioRoute(caught)
+          ? copy.themeServerRestart
+          : studioError(caught) || copy.themeDraftFailed,
+      );
     } finally {
       setGenerating(false);
     }

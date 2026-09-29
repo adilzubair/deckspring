@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "node server.mjs",
+    "dev": "node --watch --watch-preserve-output server.mjs",
     "build": "deckspring build",
     "typecheck": "node --check server.mjs && node --check model.mjs && node --check deck.mjs && node --check theme.mjs && node --check comment-edits.mjs && tsc --noEmit",
     "test": "node --test deck.test.mjs model.test.mjs theme.test.mjs server.test.mjs comment-edits.test.mjs"
