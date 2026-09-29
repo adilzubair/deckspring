@@ -14,6 +14,7 @@ import { useLocale } from '@/lib/use-locale';
 import { studioApi, studioError } from './studio-api';
 import { studioCopy } from './studio-copy';
 import { useStudioModels } from './studio-models';
+import { StudioSelect } from './studio-select';
 
 type Change = {
   commentId: string;
@@ -94,26 +95,20 @@ export function StudioApplyComments({
           <p className="text-[12.5px] text-muted-foreground">{copy.loadingModels}</p>
         ) : models.length > 0 ? (
           <>
-            <label
-              className="block text-[12.5px] font-medium text-muted-foreground"
-              htmlFor="comment-model"
-            >
+            <div className="text-[12.5px] font-medium text-muted-foreground">
               {copy.reviewWithModel}
-            </label>
-            <select
-              id="comment-model"
+            </div>
+            <StudioSelect
+              label={copy.reviewWithModel}
               value={selectedId}
-              onChange={(event) => {
-                choose(event.target.value);
-              }}
-              className="mt-1.5 h-8 w-full rounded-[5px] border border-input bg-card px-2 text-[13px] outline-none focus:border-foreground/30"
-            >
-              {models.map((model) => (
-                <option key={model.id} value={model.id}>
-                  {model.name} · {model.model}
-                </option>
-              ))}
-            </select>
+              onValueChange={choose}
+              compact
+              className="mt-1.5 text-[13px]"
+              options={models.map((model) => ({
+                value: model.id,
+                label: `${model.name} · ${model.model}`,
+              }))}
+            />
             <p className="mt-2 text-[12.5px] leading-4 text-muted-foreground">{copy.commentHelp}</p>
             {pendingEdits && (
               <p className="mt-2 text-[12.5px] leading-4 text-muted-foreground">

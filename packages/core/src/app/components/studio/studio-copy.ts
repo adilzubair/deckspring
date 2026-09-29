@@ -113,6 +113,7 @@ export const studioCopy = {
     themePromptPlaceholder:
       'Crisp aerospace briefing: deep navy, instrument-panel lines, condensed headings, and restrained amber status marks.',
     themeDeckLabel: 'Choose a deck',
+    themeNoDecks: 'No decks yet',
     themeModelLabel: 'Design with model',
     themeGenerateDraft: 'Generate draft',
     themeGeneratingDraft: 'Designing theme…',
@@ -300,6 +301,7 @@ export const studioCopy = {
     themePromptPlaceholder:
       'إحاطة جوية واضحة: كحلي عميق، خطوط لوحات أجهزة، عناوين مكثفة، وعلامات كهرمانية هادئة.',
     themeDeckLabel: 'اختر عرضًا',
+    themeNoDecks: 'لا توجد عروض بعد',
     themeModelLabel: 'التصميم باستخدام نموذج',
     themeGenerateDraft: 'إنشاء مسودة',
     themeGeneratingDraft: 'جارٍ تصميم السمة…',

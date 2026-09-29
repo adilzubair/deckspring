@@ -7,11 +7,9 @@ import { isLocalModel, studioApi, studioError } from './studio-api';
 import { studioCopy } from './studio-copy';
 import { modelIsReady, useStudioModels } from './studio-models';
 import { type StudioMotion, StudioMotionControls } from './studio-motion';
+import { StudioSelect } from './studio-select';
 
 const PENDING_GENERATION_KEY = 'studio:pending-generation';
-
-const inputClass =
-  'h-10 w-full rounded-[6px] border border-input bg-card px-3 text-[14px] text-foreground outline-none transition-colors placeholder:text-muted-foreground/65 focus:border-foreground/30 focus:ring-2 focus:ring-ring/20';
 
 export function StudioPanel() {
   const locale = useLocale();
@@ -184,57 +182,62 @@ export function StudioPanel() {
             </Button>
           </div>
           <div className="mt-5 flex flex-wrap items-end gap-3">
-            <label className="grid min-w-28 gap-1.5 text-[14px] font-medium">
-              {copy.pages}
-              <select
-                value={pageCount}
-                onChange={(event) => setPageCount(Number(event.target.value))}
-                className={inputClass}
-              >
-                {[4, 6, 8, 10, 12].map((count) => (
-                  <option key={count} value={count}>
-                    {count} {copy.pageUnit}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="grid min-w-32 gap-1.5 text-[14px] font-medium">
-              {copy.visualStyle}
-              <select
+            <div className="grid min-w-28 gap-1.5 text-[14px] font-medium">
+              <span>{copy.pages}</span>
+              <StudioSelect
+                label={copy.pages}
+                value={String(pageCount)}
+                onValueChange={(value) => setPageCount(Number(value))}
+                options={[4, 6, 8, 10, 12].map((count) => ({
+                  value: String(count),
+                  label: `${count} ${copy.pageUnit}`,
+                }))}
+              />
+            </div>
+            <div className="grid min-w-32 gap-1.5 text-[14px] font-medium">
+              <span>{copy.visualStyle}</span>
+              <StudioSelect
+                label={copy.visualStyle}
                 value={style}
-                onChange={(event) => setStyle(event.target.value)}
-                className={inputClass}
-              >
-                {themes.some((theme) => theme.studioReady) && (
-                  <optgroup label={copy.savedThemes}>
-                    {themes
-                      .filter((theme) => theme.studioReady)
-                      .map((theme) => (
-                        <option key={theme.id} value={`theme:${theme.id}`}>
-                          {theme.name}
-                        </option>
-                      ))}
-                  </optgroup>
-                )}
-                <optgroup label={copy.quickStyles}>
-                  <option value="builtin:cobalt">{copy.cobalt}</option>
-                  <option value="builtin:citrus">{copy.citrus}</option>
-                  <option value="builtin:evergreen">{copy.evergreen}</option>
-                  <option value="builtin:midnight">{copy.midnight}</option>
-                </optgroup>
-              </select>
-            </label>
-            <label className="grid min-w-28 gap-1.5 text-[14px] font-medium">
-              {copy.outputLanguage}
-              <select
+                onValueChange={setStyle}
+                groups={[
+                  ...(themes.some((theme) => theme.studioReady)
+                    ? [
+                        {
+                          label: copy.savedThemes,
+                          options: themes
+                            .filter((theme) => theme.studioReady)
+                            .map((theme) => ({
+                              value: `theme:${theme.id}`,
+                              label: theme.name,
+                            })),
+                        },
+                      ]
+                    : []),
+                  {
+                    label: copy.quickStyles,
+                    options: [
+                      { value: 'builtin:cobalt', label: copy.cobalt },
+                      { value: 'builtin:citrus', label: copy.citrus },
+                      { value: 'builtin:evergreen', label: copy.evergreen },
+                      { value: 'builtin:midnight', label: copy.midnight },
+                    ],
+                  },
+                ]}
+              />
+            </div>
+            <div className="grid min-w-28 gap-1.5 text-[14px] font-medium">
+              <span>{copy.outputLanguage}</span>
+              <StudioSelect
+                label={copy.outputLanguage}
                 value={deckLanguage}
-                onChange={(event) => setDeckLanguage(event.target.value as 'en' | 'ar')}
-                className={inputClass}
-              >
-                <option value="en">{copy.english}</option>
-                <option value="ar">{copy.arabic}</option>
-              </select>
-            </label>
+                onValueChange={(value) => setDeckLanguage(value as 'en' | 'ar')}
+                options={[
+                  { value: 'en', label: copy.english },
+                  { value: 'ar', label: copy.arabic },
+                ]}
+              />
+            </div>
           </div>
           <StudioMotionControls
             value={motion}

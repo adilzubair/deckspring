@@ -39,9 +39,8 @@ import { SlideCanvas } from '../slide-canvas';
 import { isMissingStudioRoute, studioApi, studioError } from '../studio/studio-api';
 import { studioCopy } from '../studio/studio-copy';
 import { modelIsReady, useStudioModels } from '../studio/studio-models';
+import { StudioSelect } from '../studio/studio-select';
 
-const inputClass =
-  'h-10 w-full rounded-[6px] border border-input bg-background px-3 text-[14px] text-foreground outline-none transition-colors placeholder:text-muted-foreground/65 focus:border-foreground/30 focus:ring-2 focus:ring-ring/20 disabled:cursor-not-allowed disabled:bg-muted/50 disabled:text-muted-foreground';
 const fieldClass = 'h-10 px-3 text-[14px]';
 const fieldTextareaClass = 'min-h-24 resize-y px-3 py-2.5 text-[14px]';
 
@@ -380,40 +379,35 @@ function ThemeSource({
                 />
               </label>
             ) : (
-              <label className="grid gap-2 text-[14px] font-medium">
-                {copy.themeDeckLabel}
-                <select
+              <div className="grid gap-2 text-[14px] font-medium">
+                <span>{copy.themeDeckLabel}</span>
+                <StudioSelect
+                  label={copy.themeDeckLabel}
                   value={slideId}
-                  onChange={(event) => setSlideId(event.target.value)}
-                  className={inputClass}
-                >
-                  {slideIds.map((candidate) => (
-                    <option key={candidate} value={candidate}>
-                      {candidate}
-                    </option>
-                  ))}
-                </select>
-              </label>
+                  onValueChange={setSlideId}
+                  disabled={slideIds.length === 0}
+                  placeholder={copy.themeNoDecks}
+                  options={slideIds.map((candidate) => ({ value: candidate, label: candidate }))}
+                />
+              </div>
             )}
           </>
         )}
         <div className="mt-6 flex flex-wrap items-end gap-3 border-t border-hairline pt-6">
-          <label className="grid min-w-64 flex-1 gap-2 text-[14px] font-medium">
-            {copy.themeModelLabel}
-            <select
+          <div className="grid min-w-64 flex-1 gap-2 text-[14px] font-medium">
+            <span>{copy.themeModelLabel}</span>
+            <StudioSelect
+              label={copy.themeModelLabel}
               value={selectedId}
-              onChange={(event) => choose(event.target.value)}
+              onValueChange={choose}
               disabled={modelsLoading || models.length === 0}
-              className={inputClass}
-            >
-              {models.length === 0 && <option value="">{copy.noModels}</option>}
-              {models.map((model) => (
-                <option key={model.id} value={model.id}>
-                  {model.name} · {model.model}
-                </option>
-              ))}
-            </select>
-          </label>
+              placeholder={copy.noModels}
+              options={models.map((model) => ({
+                value: model.id,
+                label: `${model.name} · ${model.model}`,
+              }))}
+            />
+          </div>
           <Button type="button" variant="outline" onClick={() => openManager()}>
             {copy.addModel}
           </Button>
@@ -709,17 +703,12 @@ function SelectField({
 }) {
   return (
     <Field label={label}>
-      <select
+      <StudioSelect
+        label={label}
         value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className={inputClass}
-      >
-        {options.map(([option, name]) => (
-          <option key={option} value={option}>
-            {name}
-          </option>
-        ))}
-      </select>
+        onValueChange={onChange}
+        options={options.map(([option, name]) => ({ value: option, label: name }))}
+      />
     </Field>
   );
 }

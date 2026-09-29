@@ -2,6 +2,7 @@ import { ArrowRight, RotateCcw } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import type { studioCopy } from './studio-copy';
+import { StudioSelect } from './studio-select';
 
 export type StudioMotion = {
   entrance: 'theme' | 'static' | 'subtle' | 'rich';
@@ -16,9 +17,6 @@ type Props = {
   copy: (typeof studioCopy)['en'] | (typeof studioCopy)['ar'];
   rtl: boolean;
 };
-
-const inputClass =
-  'h-10 w-full rounded-[6px] border border-input bg-card px-3 text-[14px] text-foreground outline-none focus:border-foreground/30 focus:ring-2 focus:ring-ring/20';
 
 export function StudioMotionControls({ value, onChange, themeMotion, copy, rtl }: Props) {
   const [page, setPage] = useState(0);
@@ -58,42 +56,39 @@ export function StudioMotionControls({ value, onChange, themeMotion, copy, rtl }
             {copy.motionDescription}
           </p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <label className="grid gap-1.5 text-[13px] font-medium">
-              {copy.motionEntrance}
-              <select
-                aria-label={copy.motionEntrance}
-                className={inputClass}
+            <div className="grid gap-1.5 text-[13px] font-medium">
+              <span>{copy.motionEntrance}</span>
+              <StudioSelect
+                label={copy.motionEntrance}
                 value={value.entrance}
-                onChange={(event) =>
-                  onChange({ ...value, entrance: event.target.value as StudioMotion['entrance'] })
+                onValueChange={(entrance) =>
+                  onChange({ ...value, entrance: entrance as StudioMotion['entrance'] })
                 }
-              >
-                <option value="theme">{copy.motionFollowTheme}</option>
-                <option value="static">{copy.themeStatic}</option>
-                <option value="subtle">{copy.themeSubtle}</option>
-                <option value="rich">{copy.themeRich}</option>
-              </select>
-            </label>
-            <label className="grid gap-1.5 text-[13px] font-medium">
-              {copy.motionBetweenPages}
-              <select
-                aria-label={copy.motionBetweenPages}
-                className={inputClass}
+                options={[
+                  { value: 'theme', label: copy.motionFollowTheme },
+                  { value: 'static', label: copy.themeStatic },
+                  { value: 'subtle', label: copy.themeSubtle },
+                  { value: 'rich', label: copy.themeRich },
+                ]}
+              />
+            </div>
+            <div className="grid gap-1.5 text-[13px] font-medium">
+              <span>{copy.motionBetweenPages}</span>
+              <StudioSelect
+                label={copy.motionBetweenPages}
                 value={value.transition}
-                onChange={(event) =>
-                  onChange({
-                    ...value,
-                    transition: event.target.value as StudioMotion['transition'],
-                  })
+                onValueChange={(transition) =>
+                  onChange({ ...value, transition: transition as StudioMotion['transition'] })
                 }
-              >
-                <option value="theme">{copy.motionFollowTheme}</option>
-                <option value="cut">{copy.motionCut}</option>
-                <option value="fade">{copy.motionFade}</option>
-                <option value="rise">{copy.motionRise}</option>
-                <option value="slide">{copy.motionSlide}</option>
-              </select>
-            </label>
+                options={[
+                  { value: 'theme', label: copy.motionFollowTheme },
+                  { value: 'cut', label: copy.motionCut },
+                  { value: 'fade', label: copy.motionFade },
+                  { value: 'rise', label: copy.motionRise },
+                  { value: 'slide', label: copy.motionSlide },
+                ]}
+              />
+            </div>
           </div>
           <label className="mt-4 flex cursor-pointer items-start gap-2.5 text-[13px] leading-5">
             <input

@@ -97,8 +97,10 @@ test('previews deck motion and sends validated choices with generation', async (
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
 
-  await page.getByLabel('Content entrance').selectOption('rich');
-  await page.getByLabel('Between pages').selectOption('slide');
+  await page.getByRole('combobox', { name: 'Content entrance' }).click();
+  await page.getByRole('option', { name: 'Expressive' }).click();
+  await page.getByRole('combobox', { name: 'Between pages' }).click();
+  await page.getByRole('option', { name: 'Slide' }).click();
   await page.getByRole('checkbox', { name: /Reveal bullet points/ }).check();
   await page.getByRole('button', { name: 'Next', exact: true }).click();
   await expect(page.getByText('Page 1', { exact: true })).toBeVisible();
@@ -197,6 +199,11 @@ test('edits a generated theme against the preview and saves explicit data', asyn
   await expect(page.getByRole('heading', { name: 'Signal Frame' })).toBeVisible();
   await page.getByLabel('Theme name').fill('Signal Atlas');
   await expect(page.getByRole('heading', { name: 'Signal Atlas' })).toBeVisible();
+  await page.getByRole('combobox', { name: 'Mode' }).click();
+  await page.getByRole('option', { name: 'Dark' }).click();
+  await expect(page.getByRole('combobox', { name: 'Mode' })).toContainText('Dark');
+  await page.getByRole('combobox', { name: 'Motif' }).click();
+  await page.getByRole('option', { name: 'Glow' }).click();
   await page.getByRole('button', { name: 'Next preview' }).click();
   await expect(page.getByText('Design language', { exact: true })).toBeVisible();
 
@@ -207,7 +214,7 @@ test('edits a generated theme against the preview and saves explicit data', asyn
   const request = await saveRequest;
   expect(request.postDataJSON()).toMatchObject({
     id: 'signal-frame',
-    spec: { name: 'Signal Atlas', palette: { accent: '#3157D5' } },
+    spec: { name: 'Signal Atlas', mode: 'dark', motif: 'glow', palette: { accent: '#3157D5' } },
   });
 });
 
