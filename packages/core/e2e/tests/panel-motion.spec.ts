@@ -2,6 +2,7 @@ import { type APIRequestContext, expect, type Page, test } from '@playwright/tes
 import { deckspring, deleteSlide, duplicateSlide, editorCanvas } from './helpers.ts';
 
 type SidebarFrame = { width: number; canvasWidth: number; panels: number };
+const SIDEBAR_WIDTH = 340;
 type MotionWindow = Window & {
   sidebarMotionFrames?: SidebarFrame[];
   sidebarMotionFrameId?: number;
@@ -55,7 +56,7 @@ test.describe('editor sidebar motion', () => {
     await duplicateSlide(request, 'edit-target', slideId);
     await deckspring(page, slideId);
     await expect(page.locator('[data-inspector-ready]')).toBeVisible();
-    await expect(page.locator('[data-editor-sidebar]')).toHaveCSS('width', '320px');
+    await expect(page.locator('[data-editor-sidebar]')).toHaveCSS('width', `${SIDEBAR_WIDTH}px`);
   }
 
   test('Format slides open and closed through intermediate widths', async ({ page, request }) => {
@@ -65,15 +66,15 @@ test.describe('editor sidebar motion', () => {
       await page.getByRole('button', { name: 'Close Format panel', exact: true }).click();
       await expect(sidebar).toHaveCount(0);
     });
-    expect(closing.some(({ width }) => width > 1 && width < 319)).toBe(true);
+    expect(closing.some(({ width }) => width > 1 && width < SIDEBAR_WIDTH - 1)).toBe(true);
     expect(closing.at(-1)?.width).toBe(0);
 
     const opening = await captureSidebarFrames(page, async () => {
       await page.getByTitle('Format', { exact: true }).click();
-      await expect(sidebar).toHaveCSS('width', '320px');
+      await expect(sidebar).toHaveCSS('width', `${SIDEBAR_WIDTH}px`);
     });
-    expect(opening.some(({ width }) => width > 1 && width < 319)).toBe(true);
-    expect(opening.at(-1)?.width).toBe(320);
+    expect(opening.some(({ width }) => width > 1 && width < SIDEBAR_WIDTH - 1)).toBe(true);
+    expect(opening.at(-1)?.width).toBe(SIDEBAR_WIDTH);
   });
 
   test('reopening Format during its closing transition keeps the sidebar mounted', async ({
@@ -83,13 +84,13 @@ test.describe('editor sidebar motion', () => {
     await openEditor(page, request, 'motion-reverse');
     const frames = await captureSidebarFrames(page, async () => {
       const reversed = page.evaluate(
-        () =>
+        (sidebarWidth) =>
           new Promise<number>((resolve, reject) => {
             const deadline = performance.now() + 5_000;
             const reopenDuringClose = () => {
               const sidebar = document.querySelector('[data-editor-sidebar]');
               const width = sidebar?.getBoundingClientRect().width ?? 0;
-              if (width > 1 && width < 319) {
+              if (width > 1 && width < sidebarWidth - 1) {
                 const format = document.querySelector<HTMLButtonElement>('button[title="Format"]');
                 if (!format) return reject(new Error('Format toggle is missing'));
                 format.click();
@@ -104,13 +105,14 @@ test.describe('editor sidebar motion', () => {
             };
             reopenDuringClose();
           }),
+        SIDEBAR_WIDTH,
       );
       await page.getByRole('button', { name: 'Close Format panel', exact: true }).click();
       expect(await reversed).toBeGreaterThan(0);
-      await expect(page.locator('[data-editor-sidebar]')).toHaveCSS('width', '320px');
+      await expect(page.locator('[data-editor-sidebar]')).toHaveCSS('width', `${SIDEBAR_WIDTH}px`);
       await expect(page.locator('aside[data-inspector-ui]')).toBeVisible();
     });
-    expect(frames.some(({ width }) => width > 1 && width < 319)).toBe(true);
+    expect(frames.some(({ width }) => width > 1 && width < SIDEBAR_WIDTH - 1)).toBe(true);
     expect(frames.every(({ width, panels }) => width > 0 && panels === 1)).toBe(true);
   });
 
@@ -126,13 +128,13 @@ test.describe('editor sidebar motion', () => {
     await expect(page.locator('[data-editor-sidebar]')).toHaveCount(0);
     await page.getByTitle('Format', { exact: true }).click();
     await expect(arrange).toHaveAttribute('aria-selected', 'true');
-    await expect(page.locator('[data-editor-sidebar]')).toHaveCSS('width', '320px');
+    await expect(page.locator('[data-editor-sidebar]')).toHaveCSS('width', `${SIDEBAR_WIDTH}px`);
     await page.getByTitle('Design tokens', { exact: true }).click();
     await expect(design).toBeVisible();
     await page.getByTitle('Format', { exact: true }).click();
     await expect(format).toBeVisible();
     await expect(arrange).toHaveAttribute('aria-selected', 'true');
-    await expect(page.locator('[data-editor-sidebar]')).toHaveCSS('width', '320px');
+    await expect(page.locator('[data-editor-sidebar]')).toHaveCSS('width', `${SIDEBAR_WIDTH}px`);
     const canvasWidth = await editorCanvas(page).evaluate(
       (element) => element.getBoundingClientRect().width,
     );
@@ -144,7 +146,7 @@ test.describe('editor sidebar motion', () => {
         await expect(mode === 'Format' ? design : format).toHaveCount(0);
       });
       expect(frames.every(({ panels }) => panels === 1)).toBe(true);
-      expect(frames.every(({ width }) => Math.abs(width - 320) < 0.5)).toBe(true);
+      expect(frames.every(({ width }) => Math.abs(width - SIDEBAR_WIDTH) < 0.5)).toBe(true);
       expect(
         frames.every(({ canvasWidth: currentWidth }) => Math.abs(currentWidth - canvasWidth) < 0.5),
       ).toBe(true);
@@ -160,10 +162,12 @@ test.describe('editor sidebar motion', () => {
       await page.getByRole('button', { name: 'Close Format panel', exact: true }).click();
       await expect(sidebar).toHaveCount(0);
       await page.getByTitle('Format', { exact: true }).click();
-      await expect(sidebar).toHaveCSS('width', '320px');
+      await expect(sidebar).toHaveCSS('width', `${SIDEBAR_WIDTH}px`);
     });
     expect(frames.some(({ width }) => width === 0)).toBe(true);
-    expect(frames.some(({ width }) => width === 320)).toBe(true);
-    expect(frames.every(({ width }) => width < 0.5 || Math.abs(width - 320) < 0.5)).toBe(true);
+    expect(frames.some(({ width }) => width === SIDEBAR_WIDTH)).toBe(true);
+    expect(frames.every(({ width }) => width < 0.5 || Math.abs(width - SIDEBAR_WIDTH) < 0.5)).toBe(
+      true,
+    );
   });
 });

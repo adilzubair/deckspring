@@ -75,7 +75,7 @@ test.describe('editor interaction flow', () => {
     await deckspring(page, slideId);
     await expect(page.locator('[data-inspector-ready]')).toBeVisible();
     const panel = page.locator('aside[data-inspector-ui]');
-    await expect(panel).toHaveCSS('width', '320px');
+    await expect(panel).toHaveCSS('width', '340px');
     captureBrowserErrors(page);
     return {
       panel,
