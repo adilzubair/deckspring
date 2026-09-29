@@ -17,6 +17,8 @@ The app binds to `127.0.0.1` and accepts HTTPS model endpoints or HTTP endpoints
 
 Model names and URLs are saved in `.local/models.json`, which is ignored by Git. API keys remain in server memory and must be entered again after restarting. Generated decks stay in `slides/` so Deckspring can edit, present, build, and export them. Studio-created themes stay in `themes/`; both directories are ignored locally. When you export a PPTX from the local Studio, it also saves a copy in `.local/exports/` for easy access. The studio itself is a development interface; `pnpm --filter studio build` produces a static Deckspring site for the decks.
 
+On first run, Studio installs three editable starter themes: **Bright Sans**, **Aurora**, and **Sticker Pop**. They are adapted from the demo's visual directions and appear in Themes and the deck generator. Studio records the installation in `.local/starter-themes.json` so edits and intentional deletions survive restarts. The demo's sample decks remain in `apps/demo`; they are showcase content, not generated user decks.
+
 The prompt-to-deck generator uses fixed layouts and validated text data. The theme editor similarly accepts a validated `ThemeSpecV1`, stores its fields as frontmatter plus a readable recipe, and generates the three-page preview from a trusted template. It does not accept model-produced code. You can use Deckspring's editor and asset manager to refine the result.
 
 ## Themes

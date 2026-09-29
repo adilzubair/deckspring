@@ -8,6 +8,7 @@ import { createServer } from 'vite';
 import { buildCommentProposal, makeCommentPrompt, readComments } from './comment-edits.mjs';
 import { deckPrompt, makeDeckId, renderDeckSource, THEMES, validateDeck } from './deck.mjs';
 import { callModel, chatCompletionsUrl, parseModelJson } from './model.mjs';
+import { installStarterThemes } from './presets.mjs';
 import {
   detachThemeReference,
   makeThemeId,
@@ -590,6 +591,7 @@ export async function startStudio() {
   await loadProfiles();
   await fs.mkdir(SLIDES_ROOT, { recursive: true });
   await fs.mkdir(THEMES_ROOT, { recursive: true });
+  await installStarterThemes(THEMES_ROOT, LOCAL_ROOT, { formatDemo: formatDeck });
   const port = Number(process.env.DECKSPRING_STUDIO_PORT ?? 5173);
   if (!Number.isInteger(port) || port < 1 || port > 65535) {
     throw new Error('DECKSPRING_STUDIO_PORT must be a valid port number.');
