@@ -13,7 +13,7 @@ type UpdateCheck = { current: string; latest: string | null; outdated: boolean }
 type UpdateStatus = 'idle' | 'running' | 'done' | 'error';
 
 const buttonClassName =
-  'h-6 w-fit rounded-[5px] border border-background/15 bg-background/8 px-2 text-[11px] text-background shadow-none hover:bg-background/14';
+  'h-7 w-fit rounded-[5px] border border-background/15 bg-background/8 px-2 text-[12px] text-background shadow-none hover:bg-background/14';
 
 export function SidebarFooter() {
   const t = useLocale();
@@ -70,7 +70,7 @@ export function SidebarFooter() {
   );
 
   return (
-    <div className="flex items-center justify-between gap-2 py-1.5 pr-2 pl-4 text-[11px] text-muted-foreground/70 tabular-nums">
+    <div className="flex items-center justify-between gap-2 py-1.5 pr-2 pl-4 text-[12px] text-muted-foreground/70 tabular-nums">
       {update?.latest ? (
         <TooltipProvider delay={200}>
           <Tooltip

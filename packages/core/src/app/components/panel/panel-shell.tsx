@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-export const PANEL_W = 320;
+export const PANEL_W = 340;
 export const PANEL_TRANSITION_MS = 240;
 
 // Defer the width expansion to the next frame so the browser paints once
@@ -47,7 +47,7 @@ export function PanelShell({ uiAttr, header, banner, footer, children }: PanelSh
   return (
     <aside {...dataAttrs} className="flex h-full shrink-0 bg-sidebar" style={{ width: PANEL_W }}>
       <div style={{ width: PANEL_W }} className="flex h-full shrink-0 flex-col">
-        <header className="flex h-9 shrink-0 items-center justify-between gap-2 border-b border-hairline px-3">
+        <header className="flex h-10 shrink-0 items-center justify-between gap-2 border-b border-hairline px-3">
           {header}
         </header>
         {banner}

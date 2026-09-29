@@ -54,8 +54,8 @@ const SYSTEM_VIEW_ICONS: Record<SystemViewKind, LucideIcon> = {
 export function SystemViewIcon({ kind, className }: { kind: SystemViewKind; className?: string }) {
   const Icon = SYSTEM_VIEW_ICONS[kind];
   return (
-    <span aria-hidden className={cn('flex size-5 shrink-0 items-center justify-center', className)}>
-      <Icon className="size-4" strokeWidth={1.75} />
+    <span aria-hidden className={cn('flex size-6 shrink-0 items-center justify-center', className)}>
+      <Icon className="size-[18px]" strokeWidth={1.75} />
     </span>
   );
 }
@@ -65,7 +65,7 @@ export function FolderIconChip({ icon, className }: { icon: FolderIcon; classNam
     return (
       <span
         className={cn(
-          'inline-flex size-5 items-center justify-center text-[15px] leading-none',
+          'inline-flex size-6 items-center justify-center text-[17px] leading-none',
           className,
         )}
       >
@@ -181,7 +181,7 @@ export function FolderItem({
     // biome-ignore lint/a11y/noStaticElementInteractions: drag-and-drop target wraps interactive children
     <div
       className={cn(
-        'group relative flex items-center gap-2.5 rounded-[5px] px-2 py-[5px] text-[12.5px] transition-[background-color,color,scale] duration-150',
+        'group relative flex items-center gap-2.5 rounded-[5px] px-2 py-[6px] text-[14px] transition-[background-color,color,scale] duration-150',
         selected
           ? 'bg-background font-medium text-foreground shadow-edge ring-1 ring-foreground/[0.06]'
           : 'text-foreground/70 hover:bg-muted/60 hover:text-foreground',
@@ -237,7 +237,7 @@ export function FolderItem({
             }
           }}
           maxLength={40}
-          className="min-w-0 flex-1 rounded-[3px] bg-card px-1 text-[12.5px] outline-none ring-1 ring-foreground/20"
+          className="min-w-0 flex-1 rounded-[3px] bg-card px-1 text-[14px] outline-none ring-1 ring-foreground/20"
         />
       ) : (
         <button

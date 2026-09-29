@@ -186,13 +186,13 @@
    * label across the app. Tracked-out small caps in muted ink.
    */
   .eyebrow {
-    @apply font-sans text-[11px] font-medium uppercase text-muted-foreground;
+    @apply font-sans text-[12.5px] font-medium uppercase text-muted-foreground;
     letter-spacing: 0.08em;
   }
 
   /* Numeric folio-style page count. */
   .folio {
-    @apply nums font-mono text-[10.5px] tracking-[0.08em] text-muted-foreground;
+    @apply nums font-mono text-[12px] tracking-[0.08em] text-muted-foreground;
   }
 }
 

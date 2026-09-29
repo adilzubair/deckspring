@@ -53,7 +53,7 @@ export function CommentWidget() {
           )}
         >
           <div className="flex items-center justify-between border-b px-3 py-2">
-            <span className="text-xs font-semibold">
+            <span className="text-[13px] font-semibold">
               {format(plural(count, t.inspector.commentsCount, t.id), { count })}
             </span>
             <button
@@ -65,9 +65,9 @@ export function CommentWidget() {
               <X className="size-3.5" />
             </button>
           </div>
-          {error && <p className="px-3 py-2 text-xs text-destructive">{error}</p>}
+          {error && <p className="px-3 py-2 text-[13px] text-destructive">{error}</p>}
           {count === 0 ? (
-            <p className="px-3 py-6 text-center text-xs text-muted-foreground">
+            <p className="px-3 py-6 text-center text-[13px] text-muted-foreground">
               {t.inspector.commentsEmpty}
             </p>
           ) : (
@@ -79,10 +79,10 @@ export function CommentWidget() {
                     className="flex items-start gap-2 border-b px-3 py-2 last:border-0"
                   >
                     <div className="min-w-0 flex-1">
-                      <div className="text-[10px] font-mono text-muted-foreground">
+                      <div className="text-[11.5px] font-mono text-muted-foreground">
                         {format(t.inspector.commentLineLabel, { n: c.line })}
                       </div>
-                      <div className="mt-0.5 text-xs break-words">{c.note}</div>
+                      <div className="mt-0.5 text-[13px] break-words">{c.note}</div>
                     </div>
                     <button
                       type="button"
@@ -103,7 +103,7 @@ export function CommentWidget() {
                   pendingEdits={pendingCount > 0 || committing}
                 />
               ) : (
-                <div className="border-t px-3 py-2 text-[11px] text-muted-foreground">
+                <div className="border-t px-3 py-2 text-[12.5px] text-muted-foreground">
                   {t.inspector.commentsApplyHintPrefix}
                   <code className="rounded bg-muted px-1 py-0.5 font-mono text-foreground">
                     /apply-comments
@@ -119,7 +119,7 @@ export function CommentWidget() {
         ref={fabRef}
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-2 rounded-full border bg-card px-3 py-2 text-xs font-medium shadow-floating transition-[background-color,scale] duration-150 hover:bg-muted active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+        className="flex items-center gap-2 rounded-full border bg-card px-3 py-2 text-[13px] font-medium shadow-floating transition-[background-color,scale] duration-150 hover:bg-muted active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
         aria-expanded={open}
       >
         <MessageSquare className="size-4" />

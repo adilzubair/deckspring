@@ -53,8 +53,8 @@ export function CollapsibleSection({
 
 export function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="grid grid-cols-[68px_1fr] items-center gap-3">
-      <Label className="text-[11px] font-normal text-muted-foreground">{label}</Label>
+    <div className="grid grid-cols-[76px_1fr] items-center gap-3">
+      <Label className="text-[13px] font-normal text-muted-foreground">{label}</Label>
       <div className="flex min-w-0 items-center gap-1.5">{children}</div>
     </div>
   );
@@ -79,20 +79,20 @@ export function NumberShell({
     <div
       title={label}
       className={cn(
-        'flex h-7 shrink-0 items-center rounded-[5px] border border-border bg-background pr-1.5 transition-colors focus-within:border-foreground/40 focus-within:ring-2 focus-within:ring-ring/30 has-[:disabled]:opacity-50',
+        'flex h-8 shrink-0 items-center rounded-[5px] border border-border bg-background pr-1.5 transition-colors focus-within:border-foreground/40 focus-within:ring-2 focus-within:ring-ring/30 has-[:disabled]:opacity-50',
         (Icon || prefix) && 'pl-2',
         className,
       )}
     >
       {Icon && <Icon aria-hidden className="size-3.5 shrink-0 text-muted-foreground" />}
       {prefix && (
-        <span aria-hidden className="shrink-0 font-mono text-[10px] text-muted-foreground">
+        <span aria-hidden className="shrink-0 font-mono text-[11.5px] text-muted-foreground">
           {prefix}
         </span>
       )}
       {children}
       {suffix && (
-        <span className="font-mono text-[9.5px] uppercase tracking-[0.06em] text-muted-foreground/80">
+        <span className="font-mono text-[11px] uppercase tracking-[0.06em] text-muted-foreground/80">
           {suffix}
         </span>
       )}
@@ -105,7 +105,7 @@ export function NumberInput({ className, ...props }: React.ComponentProps<'input
     <input
       type="number"
       className={cn(
-        'nums h-full w-12 min-w-0 flex-1 bg-transparent px-2 text-right font-mono text-[11px] outline-none [appearance:textfield] disabled:cursor-not-allowed [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
+        'nums h-full w-12 min-w-0 flex-1 bg-transparent px-2 text-right font-mono text-[13px] outline-none [appearance:textfield] disabled:cursor-not-allowed [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
         className,
       )}
       {...props}
@@ -189,7 +189,7 @@ export function ColorField({
 
   return (
     <Field label={label}>
-      <label className="relative inline-flex size-7 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-[5px] border border-border bg-background transition-[border-color,scale] duration-150 hover:border-foreground/20 active:scale-[0.96] has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring/30">
+      <label className="relative inline-flex size-8 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-[5px] border border-border bg-background transition-[border-color,scale] duration-150 hover:border-foreground/20 active:scale-[0.96] has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring/30">
         <span
           className={cn(
             'size-4 rounded-[3px]',
@@ -218,7 +218,7 @@ export function ColorField({
         onBlur={() => {
           if (!HEX6.test(draft)) setDraft(value);
         }}
-        className="nums h-7 flex-1 px-2 font-mono text-[11px] uppercase"
+        className="nums h-8 flex-1 px-2 font-mono text-[13px] uppercase"
         spellCheck={false}
       />
       {onClear && (

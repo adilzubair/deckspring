@@ -120,7 +120,7 @@ export function OverviewGrid({
       <div className="flex shrink-0 items-center justify-between px-8 pt-6 pb-3">
         <span className={cn('eyebrow', styles.eyebrow)}>{t.present.overviewEyebrow}</span>
         <div className="flex items-center gap-3">
-          <span className={cn('font-mono text-[11px] tabular-nums', styles.eyebrow)}>
+          <span className={cn('font-mono text-[12.5px] tabular-nums', styles.eyebrow)}>
             {pad2(focused + 1)} · {pad2(pages.length)}
           </span>
           <button
@@ -250,7 +250,7 @@ function OverviewThumb({
         {isCurrent && (
           <span
             aria-hidden
-            className="pointer-events-none absolute top-1.5 right-1.5 rounded-[3px] bg-[var(--brand,#e5484d)] px-1.5 py-0.5 font-mono text-[9.5px] tracking-[0.06em] uppercase text-white"
+            className="pointer-events-none absolute top-1.5 right-1.5 rounded-[3px] bg-[var(--brand,#e5484d)] px-1.5 py-0.5 font-mono text-[11px] tracking-[0.06em] uppercase text-white"
           >
             {t.present.nowBadge}
           </span>
@@ -259,7 +259,7 @@ function OverviewThumb({
       <div className="flex h-4 w-full items-center justify-between gap-2">
         <span
           className={cn(
-            'font-mono text-[10.5px] tracking-[0.08em] tabular-nums uppercase',
+            'font-mono text-[12px] tracking-[0.08em] tabular-nums uppercase',
             isFocused || isCurrent ? styles.labelActive : styles.labelMuted,
           )}
         >

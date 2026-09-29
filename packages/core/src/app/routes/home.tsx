@@ -141,7 +141,7 @@ export function Home() {
           ) : (
             <SystemViewIcon kind={isAll ? 'all' : 'draft'} className="text-muted-foreground" />
           )}
-          <h1 className="font-heading text-[19px] font-semibold leading-none tracking-[-0.015em] md:text-[21px]">
+          <h1 className="font-heading text-[21px] font-semibold leading-none tracking-[-0.015em] md:text-[23px]">
             {title}
           </h1>
           <DropdownMenu>
@@ -255,7 +255,7 @@ function SearchInput({ value, onChange }: { value: string; onChange: (value: str
   return (
     <div className="relative w-full md:w-[240px]">
       <Search
-        className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground"
+        className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
         aria-hidden
       />
       <input
@@ -263,7 +263,7 @@ function SearchInput({ value, onChange }: { value: string; onChange: (value: str
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={t.home.searchPlaceholder}
-        className="h-8 w-full rounded-[6px] border border-border bg-background pl-8 pr-7 text-[12.5px] outline-none placeholder:text-muted-foreground/70 focus-visible:border-foreground/40 focus-visible:ring-2 focus-visible:ring-ring/30"
+        className="h-9 w-full rounded-[6px] border border-border bg-background pl-8 pr-7 text-[14px] outline-none placeholder:text-muted-foreground/70 focus-visible:border-foreground/40 focus-visible:ring-2 focus-visible:ring-ring/30"
       />
       {value && (
         <button
@@ -300,7 +300,7 @@ function SortControl({ value, onChange }: { value: SortKey; onChange: (next: Sor
           <button
             type="button"
             aria-label={`${t.home.sortLabel}: ${labels[value]}`}
-            className="flex h-8 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-[6px] border border-border bg-background pl-2 pr-1.5 text-[12.5px] font-medium text-foreground outline-none transition-[background-color,translate] duration-100 hover:bg-muted active:translate-y-px focus-visible:border-foreground/40 focus-visible:ring-2 focus-visible:ring-ring/30"
+            className="flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-[6px] border border-border bg-background pl-2 pr-1.5 text-[14px] font-medium text-foreground outline-none transition-[background-color,translate] duration-100 hover:bg-muted active:translate-y-px focus-visible:border-foreground/40 focus-visible:ring-2 focus-visible:ring-ring/30"
           >
             <FieldIcon k={value} className="size-3.5 text-muted-foreground" />
             <span>{labels[value]}</span>
@@ -547,14 +547,14 @@ function SlideCard({
         </Link>
         <div className="mt-3 flex items-center gap-2">
           <Link to={`/s/${id}`} className="min-w-0 flex-1 focus-visible:outline-none">
-            <h3 className="min-w-0 truncate font-heading text-[14px] font-medium tracking-tight">
+            <h3 className="min-w-0 truncate font-heading text-[16px] font-medium tracking-tight">
               {displayTitle}
             </h3>
           </Link>
           {slide?.meta?.theme && (
             <Link
               to={`/themes/${encodeURIComponent(slide.meta.theme)}`}
-              className="inline-flex shrink-0 items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground"
+              className="inline-flex shrink-0 items-center gap-1 text-[12.5px] text-muted-foreground hover:text-foreground"
             >
               <Palette className="size-3" aria-hidden />
               <span className="max-w-[120px] truncate">{slide.meta.theme}</span>

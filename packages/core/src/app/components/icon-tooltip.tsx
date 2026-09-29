@@ -33,7 +33,7 @@ export function IconTooltip({
       <TooltipContent side="bottom" sideOffset={6} className="flex items-center gap-1.5">
         {label}
         {shortcut && (
-          <kbd className="rounded-[3px] bg-background/18 px-1 py-0.5 font-mono text-[9.5px] tracking-[0.04em] text-background/85">
+          <kbd className="rounded-[3px] bg-background/18 px-1 py-0.5 font-mono text-[11px] tracking-[0.04em] text-background/85">
             {shortcut}
           </kbd>
         )}

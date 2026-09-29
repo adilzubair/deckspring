@@ -79,7 +79,7 @@ function CommandEmpty({ ...props }: React.ComponentProps<typeof CommandPrimitive
   return (
     <CommandPrimitive.Empty
       data-slot="command-empty"
-      className="px-3 py-10 text-center text-[12.5px] text-muted-foreground"
+      className="px-3 py-10 text-center text-[14px] text-muted-foreground"
       {...props}
     />
   );
@@ -95,7 +95,7 @@ function CommandGroup({
       className={cn(
         'overflow-hidden pt-1.5 pb-1 [&:not(:first-child)]:mt-1 [&:not(:first-child)]:border-t [&:not(:first-child)]:border-hairline',
         '[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:pt-1 [&_[cmdk-group-heading]]:pb-1.5',
-        '[&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:tracking-[0.08em] [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:text-muted-foreground/70',
+        '[&_[cmdk-group-heading]]:text-[12px] [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:tracking-[0.08em] [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:text-muted-foreground/70',
         className,
       )}
       {...props}
@@ -108,7 +108,7 @@ function CommandItem({ className, ...props }: React.ComponentProps<typeof Comman
     <CommandPrimitive.Item
       data-slot="command-item"
       className={cn(
-        'relative flex cursor-default select-none items-center gap-2 rounded-[5px] px-2 py-1.5 text-[12.5px] outline-none',
+        'relative flex cursor-default select-none items-center gap-2 rounded-[5px] px-2 py-2 text-[14px] outline-none',
         'data-[selected=true]:bg-muted data-[selected=true]:text-foreground active:bg-muted/80',
         'data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-45',
         "[&_svg]:size-3.5 [&_svg]:shrink-0 [&_svg]:text-muted-foreground [&_svg:not([class*='opacity'])]:opacity-80",
@@ -124,7 +124,7 @@ function CommandShortcut({ className, ...props }: React.ComponentProps<'kbd'>) {
     <kbd
       data-slot="command-shortcut"
       className={cn(
-        'ml-auto shrink-0 rounded-[3px] bg-muted px-1.5 py-0.5 font-mono text-[9.5px] tracking-[0.04em] text-muted-foreground',
+        'ml-auto shrink-0 rounded-[3px] bg-muted px-1.5 py-0.5 font-mono text-[11px] tracking-[0.04em] text-muted-foreground',
         className,
       )}
       {...props}

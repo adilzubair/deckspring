@@ -143,7 +143,7 @@ export function CommandMenuTrigger({ onClick }: { onClick: () => void }) {
 function CommandFooter() {
   const t = useLocale();
   return (
-    <div className="flex items-center justify-between gap-3 border-t border-hairline bg-muted/30 px-3 py-2 text-[10.5px] text-muted-foreground">
+    <div className="flex items-center justify-between gap-3 border-t border-hairline bg-muted/30 px-3 py-2 text-[12px] text-muted-foreground">
       <Hint keys="esc" label={t.commandMenu.hintClose} />
       <span className="inline-flex items-center gap-3">
         <Hint keys="↑↓" label={t.commandMenu.hintNavigate} />
@@ -156,7 +156,7 @@ function CommandFooter() {
 function Hint({ keys, label }: { keys: string; label: string }) {
   return (
     <span className="inline-flex items-center gap-1">
-      <kbd className="rounded-[3px] border border-hairline bg-card px-1 py-0.5 font-mono text-[9.5px] leading-none">
+      <kbd className="rounded-[3px] border border-hairline bg-card px-1 py-0.5 font-mono text-[11px] leading-none">
         {keys}
       </kbd>
       {label}

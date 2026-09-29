@@ -37,12 +37,12 @@ export function PresentHelpOverlay({ open, onOpenChange, container }: Props) {
               key={row.label}
               className="flex items-center justify-between gap-3 border-b border-hairline py-1.5 last:border-0"
             >
-              <span className="text-[12.5px] text-foreground/85">{row.label}</span>
+              <span className="text-[14px] text-foreground/85">{row.label}</span>
               <span className="flex shrink-0 items-center gap-1">
                 {row.keys.map((k) => (
                   <kbd
                     key={k}
-                    className="rounded-[4px] border border-border bg-muted px-1.5 py-0.5 font-mono text-[10.5px] tabular-nums"
+                    className="rounded-[4px] border border-border bg-muted px-1.5 py-0.5 font-mono text-[12px] tabular-nums"
                   >
                     {k}
                   </kbd>

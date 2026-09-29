@@ -89,7 +89,7 @@ export function ThemeDetail({ themeId, onBack }: { themeId: string; onBack: () =
           {theme.name}
         </h2>
         {theme.description ? (
-          <p className="basis-full text-[13px] leading-relaxed text-muted-foreground">
+          <p className="basis-full text-[14px] leading-relaxed text-muted-foreground">
             {theme.description}
           </p>
         ) : null}
@@ -102,7 +102,7 @@ export function ThemeDetail({ themeId, onBack }: { themeId: string; onBack: () =
               {!theme.hasDemo ? (
                 <NoDemoLargeState />
               ) : !demo ? (
-                <div className="grid h-full w-full place-items-center text-[11px] tracking-[0.08em] uppercase text-muted-foreground/60">
+                <div className="grid h-full w-full place-items-center text-[12px] tracking-[0.08em] uppercase text-muted-foreground/60">
                   {t.common.loading}
                 </div>
               ) : Current ? (
@@ -148,7 +148,7 @@ export function ThemeDetail({ themeId, onBack }: { themeId: string; onBack: () =
                 promptOverflows && !promptExpanded ? { maxHeight: PROMPT_COLLAPSED_PX } : undefined
               }
               className={cn(
-                'w-full rounded-[8px] border border-hairline bg-card p-4 font-mono text-[11.5px] leading-relaxed text-foreground/90',
+                'w-full rounded-[8px] border border-hairline bg-card p-4 font-mono text-[13px] leading-relaxed text-foreground/90',
                 promptOverflows && !promptExpanded ? 'overflow-hidden' : 'overflow-auto',
               )}
             >
@@ -187,7 +187,7 @@ export function ThemeDetail({ themeId, onBack }: { themeId: string; onBack: () =
             ) : null}
           </div>
           {usedBySlideIds.length === 0 ? (
-            <p className="text-[12.5px] leading-relaxed text-muted-foreground">
+            <p className="text-[14px] leading-relaxed text-muted-foreground">
               {t.themes.usedByEmpty}
             </p>
           ) : (
@@ -239,16 +239,16 @@ function ThemeSlideCard({ id }: { id: string }) {
             </SlideCanvas>
           </div>
         ) : (
-          <div className="grid h-full w-full place-items-center text-[10px] tracking-[0.08em] uppercase text-muted-foreground/60">
+          <div className="grid h-full w-full place-items-center text-[12px] tracking-[0.08em] uppercase text-muted-foreground/60">
             {t.common.loading}
           </div>
         )}
       </div>
       <div className="mt-2.5">
-        <h3 className="min-w-0 truncate font-heading text-[13px] font-medium tracking-tight">
+        <h3 className="min-w-0 truncate font-heading text-[16px] font-medium tracking-tight">
           {displayTitle}
         </h3>
-        <p className="mt-0.5 truncate font-mono text-[10.5px] text-muted-foreground/80">{id}</p>
+        <p className="mt-0.5 truncate font-mono text-[12px] text-muted-foreground/80">{id}</p>
       </div>
     </Link>
   );
@@ -295,9 +295,9 @@ function NoDemoLargeState() {
         <p className="font-heading text-[15px] font-semibold tracking-tight">
           {t.themes.noDemoYet}
         </p>
-        <p className="mt-1.5 text-[12.5px] leading-relaxed text-muted-foreground">
+        <p className="mt-1.5 text-[14px] leading-relaxed text-muted-foreground">
           {t.themes.noDemoHintPrefix}
-          <code className="rounded-[4px] bg-card px-1.5 py-0.5 font-mono text-[11.5px] text-foreground">
+          <code className="rounded-[4px] bg-card px-1.5 py-0.5 font-mono text-[13px] text-foreground">
             /create-theme
           </code>
           {t.themes.noDemoHintSuffix}

@@ -51,12 +51,12 @@ function ThemeCard({
         <ThemePreview theme={theme} />
       </div>
       <div className="mt-3">
-        <h3 className="min-w-0 truncate font-heading text-[14px] font-medium tracking-tight">
+        <h3 className="min-w-0 truncate font-heading text-[16px] font-medium tracking-tight">
           {theme.name}
         </h3>
       </div>
       {theme.description ? (
-        <p className="mt-1 line-clamp-2 text-[12px] leading-snug text-muted-foreground">
+        <p className="mt-1 line-clamp-2 text-[13.5px] leading-snug text-muted-foreground">
           {theme.description}
         </p>
       ) : null}
@@ -73,7 +73,7 @@ function ThemePreview({ theme }: { theme: Theme }) {
   }
   if (!demo) {
     return (
-      <div className="grid h-full w-full place-items-center text-[10px] tracking-[0.08em] uppercase text-muted-foreground/60">
+      <div className="grid h-full w-full place-items-center text-[12px] tracking-[0.08em] uppercase text-muted-foreground/60">
         {t.common.loading}
       </div>
     );
@@ -97,12 +97,12 @@ function NoDemoState() {
   return (
     <div className="grid h-full w-full place-items-center bg-muted/40 px-6 text-center">
       <div>
-        <p className="font-heading text-[12px] font-semibold tracking-tight text-foreground/80">
+        <p className="font-heading text-[14px] font-semibold tracking-tight text-foreground/80">
           {t.themes.noDemoYet}
         </p>
-        <p className="mt-1 text-[10.5px] leading-snug text-muted-foreground">
+        <p className="mt-1 text-[12.5px] leading-snug text-muted-foreground">
           {t.themes.noDemoHintPrefix}
-          <code className="rounded-[3px] bg-card px-1 py-0.5 font-mono text-[10px] text-foreground">
+          <code className="rounded-[3px] bg-card px-1 py-0.5 font-mono text-[12px] text-foreground">
             /create-theme
           </code>
           {t.themes.noDemoHintSuffix}
@@ -118,12 +118,12 @@ function ThemesEmptyState() {
     <div className="rounded-[8px] border border-dashed border-border px-8 py-20">
       <div className="mx-auto flex max-w-md flex-col items-center text-center">
         <Palette className="size-5 text-muted-foreground/60" aria-hidden />
-        <p className="mt-4 font-heading text-[14px] font-semibold tracking-tight">
+        <p className="mt-4 font-heading text-[16px] font-semibold tracking-tight">
           {t.themes.noThemesTitle}
         </p>
         <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">
           {t.themes.noThemesHintPrefix}
-          <code className="rounded-[4px] bg-muted px-1.5 py-0.5 font-mono text-[11.5px] text-foreground">
+          <code className="rounded-[4px] bg-muted px-1.5 py-0.5 font-mono text-[13px] text-foreground">
             /create-theme
           </code>
           {t.themes.noThemesHintSuffix}

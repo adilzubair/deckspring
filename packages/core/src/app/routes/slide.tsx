@@ -621,7 +621,7 @@ export function Slide() {
         <SelectionReporter />
         <div className="flex h-dvh flex-col overflow-hidden bg-sidebar text-foreground">
           {/* Toolbar sits directly on the chrome ground — three zones, mono-folio center */}
-          <header className="relative flex h-12 shrink-0 items-center gap-2 px-2 md:px-3">
+          <header className="relative flex h-13 shrink-0 items-center gap-2 px-2 md:px-3">
             <div className="flex flex-1 items-center gap-1.5 md:flex-none md:gap-2">
               {showSlideBrowser && (
                 <button
@@ -766,7 +766,7 @@ export function Slide() {
                     size="sm"
                     variant="brand"
                     onClick={() => setPlayMode(isMobile ? 'window' : 'fullscreen')}
-                    className="px-2.5 md:rounded-r-none md:px-3"
+                    className="px-2.5 text-[13px] md:rounded-r-none md:px-3"
                   >
                     <Play className="size-3.5 fill-current" />
                     <span className="hidden md:inline">{t.slide.present}</span>
@@ -1064,7 +1064,7 @@ function AgentConnectedBadge() {
           render={
             <button
               type="button"
-              className="ml-1 flex shrink-0 cursor-help items-center gap-1.5 rounded-[3px] border border-hairline bg-card px-1.5 py-0.5 text-[10.5px] text-foreground/85 outline-none transition-colors duration-150 hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring/30"
+              className="ml-1 flex shrink-0 cursor-help items-center gap-1.5 rounded-[3px] border border-hairline bg-card px-1.5 py-0.5 text-[12px] text-foreground/85 outline-none transition-colors duration-150 hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring/30"
             >
               <span aria-hidden className="relative flex size-1.5 items-center justify-center">
                 {connected ? (
@@ -1204,7 +1204,7 @@ function InlineTitleEditor({
         <div className="inline-grid max-w-full items-center">
           <span
             aria-hidden
-            className="invisible col-start-1 row-start-1 overflow-hidden whitespace-pre border border-transparent px-2 py-0.5 font-heading text-[13.5px] font-semibold tracking-[-0.01em]"
+            className="invisible col-start-1 row-start-1 overflow-hidden whitespace-pre border border-transparent px-2 py-0.5 font-heading text-[15px] font-semibold tracking-[-0.01em]"
           >
             {value || ' '}
           </span>
@@ -1228,7 +1228,7 @@ function InlineTitleEditor({
               }
             }}
             maxLength={80}
-            className="col-start-1 row-start-1 w-full min-w-0 rounded-[5px] border border-foreground/30 bg-card px-2 py-0.5 text-center font-heading text-[13.5px] font-semibold tracking-[-0.01em] outline-none"
+            className="col-start-1 row-start-1 w-full min-w-0 rounded-[5px] border border-foreground/30 bg-card px-2 py-0.5 text-center font-heading text-[15px] font-semibold tracking-[-0.01em] outline-none"
           />
         </div>
       </div>
@@ -1238,7 +1238,7 @@ function InlineTitleEditor({
   if (!import.meta.env.DEV) {
     return (
       <div className="flex min-w-0 items-baseline justify-center">
-        <h1 className="truncate font-heading text-[13.5px] font-semibold tracking-[-0.01em]">
+        <h1 className="truncate font-heading text-[15px] font-semibold tracking-[-0.01em]">
           {title}
         </h1>
       </div>
@@ -1256,7 +1256,7 @@ function InlineTitleEditor({
           'hover:border-foreground/30 hover:bg-card focus-visible:border-foreground/30 focus-visible:bg-card focus-visible:outline-none',
         )}
       >
-        <h1 className="truncate font-heading text-[13.5px] font-semibold tracking-[-0.01em]">
+        <h1 className="truncate font-heading text-[15px] font-semibold tracking-[-0.01em]">
           {title}
         </h1>
       </button>

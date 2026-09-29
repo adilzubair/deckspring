@@ -507,7 +507,7 @@ function HorizontalVirtualThumbList({
       >
         <span
           className={cn(
-            'font-mono text-[9.5px] font-medium tracking-[0.06em] tabular-nums uppercase',
+            'font-mono text-[12px] font-medium tracking-[0.06em] tabular-nums uppercase',
             active ? 'text-brand' : 'text-muted-foreground/70',
           )}
         >
@@ -770,7 +770,7 @@ function ThumbContents({
       <div className="mt-1.5 flex w-7 shrink-0 flex-col items-end gap-1">
         <span
           className={cn(
-            'font-mono text-[10px] font-medium tracking-[0.06em] tabular-nums uppercase',
+            'font-mono text-[12px] font-medium tracking-[0.06em] tabular-nums uppercase',
             active ? 'text-brand' : 'text-muted-foreground/70',
           )}
         >

@@ -88,10 +88,10 @@ export function ImageCropDialog({
             variant="outline"
             size="sm"
           >
-            <ToggleGroupItem value="cover" className="text-xs">
+            <ToggleGroupItem value="cover" className="text-[13px]">
               {t.inspector.cropFitCover}
             </ToggleGroupItem>
-            <ToggleGroupItem value="contain" className="text-xs">
+            <ToggleGroupItem value="contain" className="text-[13px]">
               {t.inspector.cropFitContain}
             </ToggleGroupItem>
           </ToggleGroup>

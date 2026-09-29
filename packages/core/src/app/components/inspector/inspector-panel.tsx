@@ -262,7 +262,7 @@ export function InspectorPanel({
         </CollapsibleSection>
         <CollapsibleSection title={t.inspector.sourceSection}>
           <div className="flex items-center justify-between gap-2">
-            <span className="font-mono text-[10.5px] text-muted-foreground">
+            <span className="font-mono text-[12px] text-muted-foreground">
               &lt;{selected.anchor.tagName.toLowerCase()}&gt; · {selected.line}:{selected.column}
             </span>
             <AgentWatchingBadge />
@@ -291,7 +291,7 @@ export function InspectorPanel({
           <>
             <div className="flex min-w-0 items-center gap-2">
               <Paintbrush className="size-3.5 text-muted-foreground" />
-              <span className="font-heading text-[12px] font-semibold tracking-tight">
+              <span className="font-heading text-[14px] font-semibold tracking-tight">
                 {t.inspector.format}
               </span>
             </div>
@@ -308,7 +308,7 @@ export function InspectorPanel({
         banner={
           selected && snapshot ? (
             <div className="flex shrink-0 items-center justify-between gap-3 px-3.5 pt-3.5 pb-1">
-              <div className="flex min-w-0 items-center gap-2 text-[12px] font-medium">
+              <div className="flex min-w-0 items-center gap-2 text-[14px] font-medium">
                 <ElementIcon aria-hidden className="size-4 shrink-0 text-muted-foreground" />
                 <span className="truncate">{elementLabel}</span>
               </div>
@@ -346,7 +346,7 @@ export function InspectorPanel({
               {textSelected && (
                 <Section title={t.inspector.typographySection}>
                   {rangeSelected && (
-                    <p className="text-[11px] leading-relaxed text-muted-foreground">
+                    <p className="text-[13px] leading-relaxed text-muted-foreground">
                       {t.inspector.textSelectionHint}
                     </p>
                   )}
@@ -436,8 +436,8 @@ export function InspectorPanel({
           <div className="flex flex-col items-center gap-3 px-7 py-16 text-center">
             <MousePointer2 aria-hidden className="size-8 text-muted-foreground/50" />
             <div className="flex flex-col gap-1.5">
-              <h2 className="text-[13px] font-medium">{t.inspector.emptySelectionTitle}</h2>
-              <p className="text-[12px] leading-relaxed text-muted-foreground">
+              <h2 className="text-[15px] font-medium">{t.inspector.emptySelectionTitle}</h2>
+              <p className="text-[14px] leading-relaxed text-muted-foreground">
                 {t.inspector.emptySelectionHint}
               </p>
             </div>
@@ -529,7 +529,7 @@ function ContentField({
       onSelect={(e) => reportSelection(e.currentTarget)}
       wrap="off"
       rows={3}
-      className="field-sizing-fixed min-h-16 w-full resize-none overflow-x-auto whitespace-pre text-xs"
+      className="field-sizing-fixed min-h-16 w-full resize-none overflow-x-auto whitespace-pre text-[14px]"
       placeholder={t.inspector.elementTextPlaceholder}
     />
   );
@@ -589,7 +589,7 @@ function FontWeightField({
     >
       <SelectTrigger
         size="sm"
-        className="min-w-0 flex-1 text-xs"
+        className="min-w-0 flex-1 text-[13px]"
         aria-label={t.inspector.weightLabel}
       >
         <SelectValue />
@@ -597,9 +597,9 @@ function FontWeightField({
       <SelectContent>
         <SelectGroup>
           {weightOptions.map((opt) => (
-            <SelectItem key={opt.value} value={opt.value} className="text-xs">
+            <SelectItem key={opt.value} value={opt.value} className="text-[13px]">
               {opt.label}
-              <span aria-hidden className="ml-1.5 font-mono text-[10.5px] opacity-60">
+              <span aria-hidden className="ml-1.5 font-mono text-[11.5px] opacity-60">
                 {opt.value}
               </span>
             </SelectItem>
@@ -815,7 +815,7 @@ function PlaceholderField({
   const t = useLocale();
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-[11px] leading-relaxed text-muted-foreground">
+      <p className="text-[13px] leading-relaxed text-muted-foreground">
         {t.inspector.placeholderHintLabel}{' '}
         <span className="font-medium text-foreground">{hint}</span>
       </p>
@@ -866,7 +866,7 @@ function AgentWatchingBadge() {
           render={
             <button
               type="button"
-              className="flex shrink-0 cursor-help items-center gap-1.5 rounded-[3px] border border-hairline bg-card px-1.5 py-px text-[10.5px] text-foreground/85 outline-none transition-colors duration-150 hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring/30"
+              className="flex shrink-0 cursor-help items-center gap-1.5 rounded-[3px] border border-hairline bg-card px-1.5 py-px text-[12px] text-foreground/85 outline-none transition-colors duration-150 hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring/30"
             >
               <span aria-hidden className="relative flex size-1.5 items-center justify-center">
                 {connected ? (
@@ -956,11 +956,11 @@ function CommentsSection({
             }
           }}
           placeholder={t.inspector.commentPlaceholder}
-          className="min-h-16 resize-none text-[12px]"
+          className="min-h-16 resize-none text-[14px]"
         />
       </div>
       <div className="flex items-center justify-between gap-2">
-        <span className="font-mono text-[10.5px] text-muted-foreground/70">
+        <span className="font-mono text-[12px] text-muted-foreground/70">
           {t.inspector.commentShortcutHint}
         </span>
         <Button size="sm" variant="brand" disabled={submitting || !draft.trim()} onClick={submit}>

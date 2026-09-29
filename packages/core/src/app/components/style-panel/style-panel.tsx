@@ -38,11 +38,11 @@ export function DesignPanel({ onClose }: DesignPanelProps) {
         <>
           <div className="flex min-w-0 items-center gap-2">
             <Palette className="size-3.5 text-muted-foreground" />
-            <span className="font-heading text-[12px] font-semibold tracking-tight">
+            <span className="font-heading text-[14px] font-semibold tracking-tight">
               {t.stylePanel.designTokens}
             </span>
             {!exists && (
-              <span className="rounded-[3px] border border-hairline bg-muted/60 px-1.5 py-px font-mono text-[9.5px] uppercase tracking-[0.08em] text-muted-foreground">
+              <span className="rounded-[3px] border border-hairline bg-muted/60 px-1.5 py-px font-mono text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
                 {t.stylePanel.draftBadge}
               </span>
             )}
@@ -80,7 +80,7 @@ export function DesignPanel({ onClose }: DesignPanelProps) {
       }
       banner={
         warning && (
-          <div className="flex gap-2 border-b border-hairline bg-amber-500/10 px-3 py-2 text-[11px] leading-relaxed text-amber-800 dark:bg-amber-400/10 dark:text-amber-200">
+          <div className="flex gap-2 border-b border-hairline bg-amber-500/10 px-3 py-2 text-[13px] leading-relaxed text-amber-800 dark:bg-amber-400/10 dark:text-amber-200">
             <span aria-hidden className="mt-0.5 size-1.5 shrink-0 rounded-full bg-amber-500" />
             <span>{warning}</span>
           </div>
@@ -202,7 +202,7 @@ export function DesignToggleButton({
     >
       <Palette className="size-3.5" />
       <span className="hidden md:inline">{t.stylePanel.designToggle}</span>
-      <kbd className="ml-1 hidden rounded-[3px] bg-foreground/10 px-1 font-mono text-[9.5px] tracking-[0.04em] md:inline">
+      <kbd className="ml-1 hidden rounded-[3px] bg-foreground/10 px-1 font-mono text-[11px] tracking-[0.04em] md:inline">
         D
       </kbd>
     </Button>
@@ -232,17 +232,17 @@ function FontField({
           if (typeof v === 'string' && v !== '__custom__') onChange(v);
         }}
       >
-        <SelectTrigger size="sm" className="flex-1 text-xs">
+        <SelectTrigger size="sm" className="flex-1 text-[13px]">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
           {FONT_PRESETS.map((p) => (
-            <SelectItem key={p.label} value={p.value} className="text-xs">
+            <SelectItem key={p.label} value={p.value} className="text-[13px]">
               {p.label}
             </SelectItem>
           ))}
           {!matched && (
-            <SelectItem value="__custom__" className="text-xs">
+            <SelectItem value="__custom__" className="text-[13px]">
               {tFont.stylePanel.fontPresetCustom}
             </SelectItem>
           )}

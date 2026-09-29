@@ -120,7 +120,7 @@ export function ArrangePanel() {
         }
       >
         {!frame.editable && (
-          <p className="text-[11px] leading-relaxed text-muted-foreground">
+          <p className="text-[12.5px] leading-relaxed text-muted-foreground">
             {frame.shared ? t.sharedLayoutHint : t.inlineLayoutHint}
           </p>
         )}

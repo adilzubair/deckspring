@@ -24,8 +24,8 @@ function ExportProgressToast({
         <Loader2 className="mt-0.5 size-3.5 shrink-0 animate-spin text-brand motion-reduce:animate-none" />
       )}
       <div className="min-w-0 flex-1">
-        <p className="font-heading text-[12.5px] font-semibold tracking-tight">{title}</p>
-        <p className="nums truncate font-mono text-[10.5px] tracking-[0.04em] text-muted-foreground">
+        <p className="font-heading text-[14px] font-semibold tracking-tight">{title}</p>
+        <p className="nums truncate font-mono text-[12px] tracking-[0.04em] text-muted-foreground">
           {text}
         </p>
         <Progress value={Math.round(percent)} className="mt-2 h-[3px]" />

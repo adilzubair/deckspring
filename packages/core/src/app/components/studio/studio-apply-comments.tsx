@@ -129,11 +129,11 @@ export function StudioApplyComments({
     <>
       <div className="border-t px-3 py-3">
         {modelsLoading ? (
-          <p className="text-[11px] text-muted-foreground">{copy.loadingModels}</p>
+          <p className="text-[12.5px] text-muted-foreground">{copy.loadingModels}</p>
         ) : models.length > 0 ? (
           <>
             <label
-              className="block text-[11px] font-medium text-muted-foreground"
+              className="block text-[12.5px] font-medium text-muted-foreground"
               htmlFor="comment-model"
             >
               {copy.reviewWithModel}
@@ -145,7 +145,7 @@ export function StudioApplyComments({
                 setSelectedId(event.target.value);
                 localStorage.setItem('studio:model', event.target.value);
               }}
-              className="mt-1.5 h-8 w-full rounded-[5px] border border-input bg-card px-2 text-xs outline-none focus:border-foreground/30"
+              className="mt-1.5 h-8 w-full rounded-[5px] border border-input bg-card px-2 text-[13px] outline-none focus:border-foreground/30"
             >
               {models.map((model) => (
                 <option key={model.id} value={model.id}>
@@ -153,9 +153,9 @@ export function StudioApplyComments({
                 </option>
               ))}
             </select>
-            <p className="mt-2 text-[11px] leading-4 text-muted-foreground">{copy.commentHelp}</p>
+            <p className="mt-2 text-[12.5px] leading-4 text-muted-foreground">{copy.commentHelp}</p>
             {pendingEdits && (
-              <p className="mt-2 text-[11px] leading-4 text-muted-foreground">
+              <p className="mt-2 text-[12.5px] leading-4 text-muted-foreground">
                 {copy.saveBeforeReview}
               </p>
             )}
@@ -172,7 +172,7 @@ export function StudioApplyComments({
             </Button>
           </>
         ) : (
-          <p className="text-[11px] leading-4 text-muted-foreground">
+          <p className="text-[12.5px] leading-4 text-muted-foreground">
             <Link to="/" className="font-medium text-foreground underline underline-offset-2">
               {copy.addModelInSlides}
             </Link>{' '}
@@ -180,12 +180,12 @@ export function StudioApplyComments({
           </p>
         )}
         {success && (
-          <p className="mt-2 text-[11px] text-foreground" role="status">
+          <p className="mt-2 text-[12.5px] text-foreground" role="status">
             {success}
           </p>
         )}
         {error && (
-          <p className="mt-2 text-[11px] text-destructive" role="alert">
+          <p className="mt-2 text-[12.5px] text-destructive" role="alert">
             {error}
           </p>
         )}
@@ -219,31 +219,31 @@ export function StudioApplyComments({
                     className="mt-0.5 accent-brand"
                   />
                   <span>
-                    <span className="block text-xs font-medium">{change.note}</span>
-                    <span className="mt-1 block text-[11px] text-muted-foreground">
+                    <span className="block text-[13px] font-medium">{change.note}</span>
+                    <span className="mt-1 block text-[12.5px] text-muted-foreground">
                       {change.summary}
                     </span>
                   </span>
                 </label>
                 <div className="grid gap-2 p-3 sm:grid-cols-2">
                   <div className="min-w-0">
-                    <p className="mb-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                    <p className="mb-1 text-[11.5px] font-medium uppercase tracking-wider text-muted-foreground">
                       {copy.before}
                     </p>
                     <pre
                       dir="ltr"
-                      className="max-h-40 overflow-auto rounded-[5px] bg-muted/70 p-2 text-left text-[10px] leading-4 whitespace-pre-wrap break-all"
+                      className="max-h-40 overflow-auto rounded-[5px] bg-muted/70 p-2 text-left text-[11.5px] leading-4 whitespace-pre-wrap break-all"
                     >
                       {change.before}
                     </pre>
                   </div>
                   <div className="min-w-0">
-                    <p className="mb-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                    <p className="mb-1 text-[11.5px] font-medium uppercase tracking-wider text-muted-foreground">
                       {copy.after}
                     </p>
                     <pre
                       dir="ltr"
-                      className="max-h-40 overflow-auto rounded-[5px] bg-brand-soft p-2 text-left text-[10px] leading-4 whitespace-pre-wrap break-all"
+                      className="max-h-40 overflow-auto rounded-[5px] bg-brand-soft p-2 text-left text-[11.5px] leading-4 whitespace-pre-wrap break-all"
                     >
                       {change.after}
                     </pre>
@@ -256,17 +256,17 @@ export function StudioApplyComments({
                 key={item.commentId}
                 className="rounded-[6px] border border-border px-3 py-2"
               >
-                <p className="text-xs font-medium">
+                <p className="text-[13px] font-medium">
                   {copy.skipped}: {item.note}
                 </p>
-                <p className="mt-1 text-[11px] text-muted-foreground">{item.reason}</p>
+                <p className="mt-1 text-[12.5px] text-muted-foreground">{item.reason}</p>
               </section>
             ))}
             {proposal?.changes.length === 0 && proposal?.skipped.length === 0 && (
-              <p className="text-xs text-muted-foreground">{copy.noChanges}</p>
+              <p className="text-[13px] text-muted-foreground">{copy.noChanges}</p>
             )}
             {error && (
-              <p className="text-xs text-destructive" role="alert">
+              <p className="text-[13px] text-destructive" role="alert">
                 {error}
               </p>
             )}

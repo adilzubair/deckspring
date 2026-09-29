@@ -31,7 +31,7 @@ const EMPTY_FORM: ModelForm = { name: '', baseUrl: '', model: '', apiKey: '' };
 const PENDING_GENERATION_KEY = 'studio:pending-generation';
 
 const inputClass =
-  'h-9 w-full rounded-[6px] border border-input bg-card px-3 text-[13px] text-foreground outline-none transition-colors placeholder:text-muted-foreground/65 focus:border-foreground/30 focus:ring-2 focus:ring-ring/20';
+  'h-10 w-full rounded-[6px] border border-input bg-card px-3 text-[14px] text-foreground outline-none transition-colors placeholder:text-muted-foreground/65 focus:border-foreground/30 focus:ring-2 focus:ring-ring/20';
 
 async function studioApi<T>(method: string, route: string, body?: object): Promise<T> {
   const response = await fetch(`/__studio${route}`, {
@@ -268,18 +268,18 @@ export function StudioPanel() {
             <Sparkles className="size-4" strokeWidth={1.75} />
           </span>
           <div>
-            <h2 className="font-heading text-[15px] font-semibold tracking-[-0.015em]">
+            <h2 className="font-heading text-[17px] font-semibold tracking-[-0.015em]">
               {copy.createTitle}
             </h2>
-            <p className="mt-0.5 text-[12px] text-muted-foreground">{copy.createDescription}</p>
+            <p className="mt-0.5 text-[13.5px] text-muted-foreground">{copy.createDescription}</p>
           </div>
         </div>
         <span className="eyebrow mt-1">{copy.localWorkspace}</span>
       </div>
 
-      <div className="grid lg:grid-cols-[minmax(0,1fr)_260px]">
+      <div className="grid lg:grid-cols-[minmax(0,1fr)_280px]">
         <form onSubmit={generate} className="min-w-0 p-5 md:p-6">
-          <label htmlFor="studio-prompt" className="text-[12px] font-medium">
+          <label htmlFor="studio-prompt" className="text-[14px] font-medium">
             {copy.promptLabel}
           </label>
           <textarea
@@ -292,14 +292,15 @@ export function StudioPanel() {
             required
             rows={5}
             placeholder={copy.promptPlaceholder}
-            className="mt-2 block min-h-32 w-full resize-y rounded-[6px] border border-input bg-background px-3 py-2.5 text-[13px] leading-relaxed text-foreground outline-none transition-colors placeholder:text-muted-foreground/65 focus:border-foreground/30 focus:ring-2 focus:ring-ring/20"
+            className="mt-2 block min-h-32 w-full resize-y rounded-[6px] border border-input bg-background px-3 py-2.5 text-[14px] leading-relaxed text-foreground outline-none transition-colors placeholder:text-muted-foreground/65 focus:border-foreground/30 focus:ring-2 focus:ring-ring/20"
           />
-          <div className="mt-3 flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground">
+          <div className="mt-3 flex flex-wrap items-center gap-1.5 text-[12.5px] text-muted-foreground">
             <span className="me-1">{copy.try}</span>
             <Button
               type="button"
               variant="outline"
               size="xs"
+              className="h-7 text-[12.5px]"
               onClick={() => setPrompt(copy.productPrompt)}
             >
               {copy.productLaunch}
@@ -308,13 +309,14 @@ export function StudioPanel() {
               type="button"
               variant="outline"
               size="xs"
+              className="h-7 text-[12.5px]"
               onClick={() => setPrompt(copy.investorPrompt)}
             >
               {copy.investorUpdate}
             </Button>
           </div>
           <div className="mt-5 flex flex-wrap items-end gap-3">
-            <label className="grid min-w-28 gap-1.5 text-[12px] font-medium">
+            <label className="grid min-w-28 gap-1.5 text-[14px] font-medium">
               {copy.pages}
               <select
                 value={pageCount}
@@ -328,7 +330,7 @@ export function StudioPanel() {
                 ))}
               </select>
             </label>
-            <label className="grid min-w-32 gap-1.5 text-[12px] font-medium">
+            <label className="grid min-w-32 gap-1.5 text-[14px] font-medium">
               {copy.palette}
               <select
                 value={palette}
@@ -341,7 +343,7 @@ export function StudioPanel() {
                 <option value="midnight">{copy.midnight}</option>
               </select>
             </label>
-            <label className="grid min-w-28 gap-1.5 text-[12px] font-medium">
+            <label className="grid min-w-28 gap-1.5 text-[14px] font-medium">
               {copy.outputLanguage}
               <select
                 value={deckLanguage}
@@ -352,7 +354,12 @@ export function StudioPanel() {
                 <option value="ar">{copy.arabic}</option>
               </select>
             </label>
-            <Button type="submit" variant="brand" disabled={busy} className="ms-auto">
+            <Button
+              type="submit"
+              variant="brand"
+              disabled={busy}
+              className="ms-auto h-10 text-[14px]"
+            >
               {busy ? <Loader2 className="size-3.5 animate-spin" /> : <Sparkles />}
               {busy ? copy.generating : copy.generate}
               {!busy && <ArrowUpRight />}
@@ -362,7 +369,7 @@ export function StudioPanel() {
             <p
               role="status"
               aria-live="polite"
-              className={`mt-3 text-[12px] ${error ? 'text-destructive' : 'text-muted-foreground'}`}
+              className={`mt-3 text-[13.5px] ${error ? 'text-destructive' : 'text-muted-foreground'}`}
             >
               {status}
             </p>
@@ -372,16 +379,22 @@ export function StudioPanel() {
         <div className="border-t border-border bg-sidebar/55 p-5 lg:border-t-0 lg:border-s md:p-6">
           <div className="flex items-center justify-between gap-2">
             <h3 className="eyebrow">{copy.models}</h3>
-            <Button type="button" variant="outline" size="xs" onClick={() => openModel()}>
+            <Button
+              type="button"
+              variant="outline"
+              size="xs"
+              className="h-7 text-[12.5px]"
+              onClick={() => openModel()}
+            >
               <Plus /> {copy.addModel}
             </Button>
           </div>
           <div className="mt-3 grid gap-1.5">
             {modelsLoading && (
-              <p className="px-3 py-4 text-[12px] text-muted-foreground">{copy.loadingModels}</p>
+              <p className="px-3 py-4 text-[13.5px] text-muted-foreground">{copy.loadingModels}</p>
             )}
             {!modelsLoading && models.length === 0 && (
-              <p className="rounded-[6px] border border-dashed border-border px-3 py-4 text-[12px] leading-5 text-muted-foreground">
+              <p className="rounded-[6px] border border-dashed border-border px-3 py-4 text-[13.5px] leading-5 text-muted-foreground">
                 {copy.noModels}
               </p>
             )}
@@ -399,11 +412,11 @@ export function StudioPanel() {
                     onClick={() => chooseModel(model.id)}
                     className="min-w-0 flex-1 text-start outline-none focus-visible:ring-2 focus-visible:ring-ring/30"
                   >
-                    <span className="flex items-center gap-1.5 truncate text-[12px] font-medium">
+                    <span className="flex items-center gap-1.5 truncate text-[14px] font-medium">
                       {active && <Check className="size-3 shrink-0 text-brand" />}
                       {model.name}
                     </span>
-                    <span className="mt-0.5 block truncate text-[11px] text-muted-foreground">
+                    <span className="mt-0.5 block truncate text-[12.5px] text-muted-foreground">
                       {model.model} · {ready ? copy.ready : copy.needsKey}
                     </span>
                   </button>
@@ -411,6 +424,7 @@ export function StudioPanel() {
                     type="button"
                     variant="ghost"
                     size="xs"
+                    className="h-7 text-[12.5px]"
                     onClick={() => openModel(model)}
                     aria-label={`${copy.edit} ${model.name}`}
                   >
@@ -420,7 +434,7 @@ export function StudioPanel() {
               );
             })}
           </div>
-          <p className="mt-4 flex items-start gap-1.5 text-[11px] leading-4 text-muted-foreground">
+          <p className="mt-4 flex items-start gap-1.5 text-[12.5px] leading-5 text-muted-foreground">
             <KeyRound className="mt-0.5 size-3 shrink-0" />
             {copy.keyMemory}
           </p>
@@ -443,7 +457,7 @@ export function StudioPanel() {
                   ['apiKey', copy.apiKey, copy.keyPlaceholder, 'password'],
                 ] as const
               ).map(([key, label, placeholder, type]) => (
-                <label key={key} className="grid gap-1.5 text-[12px] font-medium">
+                <label key={key} className="grid gap-1.5 text-[14px] font-medium">
                   {label}
                   <input
                     type={type}
@@ -465,12 +479,14 @@ export function StudioPanel() {
                 </label>
               ))}
             </div>
-            <p className="mt-3 text-[11px] leading-4 text-muted-foreground">{copy.localDetails}</p>
+            <p className="mt-3 text-[12.5px] leading-5 text-muted-foreground">
+              {copy.localDetails}
+            </p>
             {dialogStatus && (
               <p
                 role="status"
                 aria-live="polite"
-                className="mt-3 text-[12px] text-muted-foreground"
+                className="mt-3 text-[13.5px] text-muted-foreground"
               >
                 {dialogStatus}
               </p>

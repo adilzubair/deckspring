@@ -338,8 +338,8 @@ export function AssetView({ slideId }: Props) {
               </TabsList>
             </Tabs>
           )}
-          <p className="min-w-0 truncate text-[12px] text-muted-foreground">
-            <span className="font-mono text-[11.5px]">
+          <p className="min-w-0 truncate text-[13.5px] text-muted-foreground">
+            <span className="font-mono text-[13px]">
               {scope === 'global' ? 'assets/' : `slides/${slideId}/assets/`}
             </span>
             {!loading && (
@@ -359,7 +359,7 @@ export function AssetView({ slideId }: Props) {
             type="button"
             onClick={() => setLogoSearchOpen(true)}
             className={cn(
-              'inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-[5px] border border-border bg-card px-2.5 text-[12.5px] font-medium transition-colors',
+              'inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-[5px] border border-border bg-card px-2.5 text-[14px] font-medium transition-colors',
               'hover:bg-muted/60 hover:border-foreground/20 active:translate-y-px',
             )}
           >
@@ -370,7 +370,7 @@ export function AssetView({ slideId }: Props) {
             type="button"
             onClick={() => setFontSearchOpen(true)}
             className={cn(
-              'inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-[5px] border border-border bg-card px-2.5 text-[12.5px] font-medium transition-colors',
+              'inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-[5px] border border-border bg-card px-2.5 text-[14px] font-medium transition-colors',
               'hover:bg-muted/60 hover:border-foreground/20 active:translate-y-px',
             )}
           >
@@ -380,7 +380,7 @@ export function AssetView({ slideId }: Props) {
           <label
             htmlFor={inputId}
             className={cn(
-              'inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-[5px] bg-foreground px-3 text-[12.5px] font-medium text-background transition-colors',
+              'inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-[5px] bg-foreground px-3 text-[14px] font-medium text-background transition-colors',
               'shadow-[inset_0_1px_0_oklch(1_0_0/0.12),0_1px_0_oklch(0_0_0/0.12)]',
               'hover:bg-foreground/90 active:translate-y-px',
             )}
@@ -415,7 +415,7 @@ export function AssetView({ slideId }: Props) {
             onChange={(event) => setQuery(event.target.value)}
             aria-label={t.asset.assetSearchPlaceholder}
             placeholder={t.asset.assetSearchPlaceholder}
-            className="h-8 w-full rounded-[6px] border border-border bg-background pl-8 pr-7 text-[12.5px] outline-none placeholder:text-muted-foreground/70 focus-visible:border-foreground/40 focus-visible:ring-2 focus-visible:ring-ring/30"
+            className="h-8 w-full rounded-[6px] border border-border bg-background pl-8 pr-7 text-[14px] outline-none placeholder:text-muted-foreground/70 focus-visible:border-foreground/40 focus-visible:ring-2 focus-visible:ring-ring/30"
           />
           {query ? (
             <button
@@ -576,7 +576,7 @@ export function AssetView({ slideId }: Props) {
         <div className="absolute inset-x-0 bottom-8 flex justify-center">
           <div
             className={cn(
-              'flex items-center gap-2 rounded-[6px] border border-border bg-card px-3 py-1.5 text-[12px] font-medium shadow-floating',
+              'flex items-center gap-2 rounded-[6px] border border-border bg-card px-3 py-1.5 text-[13.5px] font-medium shadow-floating',
               'ease-swift motion-safe:transition-[opacity,translate] motion-safe:duration-200',
               dragActive ? 'translate-y-0 opacity-100' : 'translate-y-1 opacity-0',
             )}
@@ -666,10 +666,10 @@ function EmptyState() {
         <ImageIcon className="size-5" />
       </div>
       <div>
-        <p className="font-heading text-[14px] font-semibold tracking-tight">
+        <p className="font-heading text-[16px] font-semibold tracking-tight">
           {t.asset.noAssetsYet}
         </p>
-        <p className="mt-1 max-w-xs text-[12.5px] leading-relaxed text-muted-foreground">
+        <p className="mt-1 max-w-xs text-[14px] leading-relaxed text-muted-foreground">
           {t.asset.noAssetsHintPrefix}
           <span className="font-mono text-foreground">{t.asset.upload}</span>
           {t.asset.noAssetsHintSuffix}
@@ -687,10 +687,10 @@ function NoMatchingAssets({ onClear }: { onClear: () => void }) {
         <SearchX className="size-5" />
       </div>
       <div>
-        <p className="font-heading text-[14px] font-semibold tracking-tight">
+        <p className="font-heading text-[16px] font-semibold tracking-tight">
           {t.asset.noMatchingAssets}
         </p>
-        <p className="mt-1 text-[12.5px] text-muted-foreground">{t.asset.noMatchingAssetsHint}</p>
+        <p className="mt-1 text-[14px] text-muted-foreground">{t.asset.noMatchingAssetsHint}</p>
       </div>
       <Button variant="outline" size="sm" onClick={onClear}>
         {t.asset.clearFilters}
@@ -732,7 +732,7 @@ function GridColumnsControl({
           onValueChange={(v) => onChange((Array.isArray(v) ? v[0] : v) ?? value)}
         />
       </div>
-      <output className="w-4 text-right font-mono text-[10.5px] tabular-nums text-muted-foreground">
+      <output className="w-4 text-right font-mono text-[12px] tabular-nums text-muted-foreground">
         {value}
       </output>
     </fieldset>
@@ -845,7 +845,7 @@ function AssetListHeader({
 }) {
   const t = useLocale();
   return (
-    <div className="hidden items-center gap-3 px-2 pb-1 text-[10px] font-medium uppercase tracking-[0.08em] text-muted-foreground/70 sm:flex">
+    <div className="hidden items-center gap-3 px-2 pb-1 text-[11.5px] font-medium uppercase tracking-[0.08em] text-muted-foreground/70 sm:flex">
       <SortableColumnHeader
         label={t.asset.nameColumn}
         sortKey="name"
@@ -918,7 +918,7 @@ function AssetCard({
 
       <div className="flex items-center gap-1 px-2.5 py-2">
         <div className="min-w-0 flex-1">
-          <div className="truncate text-[12.5px] font-medium" title={asset.name}>
+          <div className="truncate text-[14px] font-medium" title={asset.name}>
             {asset.name}
           </div>
           <div className="folio flex items-center gap-1.5">
@@ -926,7 +926,7 @@ function AssetCard({
             <UsageBadge unused={asset.unused} />
           </div>
           <div
-            className="mt-0.5 flex min-w-0 items-center gap-1 text-[10.5px] leading-tight text-muted-foreground"
+            className="mt-0.5 flex min-w-0 items-center gap-1 text-[12px] leading-tight text-muted-foreground"
             title={`${t.asset.modifiedAt}: ${formatAssetDate(asset.mtime, t.id, true)}`}
           >
             <span className="shrink-0">{t.asset.modifiedAt}</span>
@@ -978,7 +978,7 @@ function AssetListItem({
         )}
       </button>
       <div className="min-w-0 flex-1">
-        <div className="truncate text-[12.5px] font-medium" title={asset.name}>
+        <div className="truncate text-[14px] font-medium" title={asset.name}>
           {asset.name}
         </div>
         <div className="folio mt-0.5 flex min-w-0 items-center gap-1.5 lg:hidden">
@@ -995,13 +995,13 @@ function AssetListItem({
           </span>
         </div>
       </div>
-      <span className="hidden w-40 shrink-0 truncate font-mono text-[11px] text-muted-foreground md:block">
+      <span className="hidden w-40 shrink-0 truncate font-mono text-[12.5px] text-muted-foreground md:block">
         {asset.mime}
       </span>
       <time
         dateTime={assetDateTime(asset.mtime)}
         title={`${t.asset.modifiedAt}: ${formatAssetDate(asset.mtime, t.id, true)}`}
-        className="hidden w-28 shrink-0 text-[11.5px] text-muted-foreground lg:block"
+        className="hidden w-28 shrink-0 text-[13px] text-muted-foreground lg:block"
       >
         <span className="sr-only">{t.asset.modifiedAt}: </span>
         {formatAssetDate(asset.mtime, t.id)}
@@ -1063,7 +1063,7 @@ function UsageBadge({ unused, showUsed = false }: { unused: boolean; showUsed?: 
   return (
     <span
       className={cn(
-        'shrink-0 rounded-sm px-1 py-px text-[10px] font-medium leading-none',
+        'shrink-0 rounded-sm px-1 py-px text-[11.5px] font-medium leading-none',
         unused
           ? 'bg-muted text-muted-foreground'
           : 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400',
@@ -1085,10 +1085,10 @@ function AssetTimestamp({
 }) {
   return (
     <div className="bg-card px-3 py-2.5">
-      <span className="eyebrow block text-[9px]">{label}</span>
+      <span className="eyebrow block text-[11px]">{label}</span>
       <time
         dateTime={assetDateTime(timestamp)}
-        className="mt-1 block text-[12px] font-medium tabular-nums"
+        className="mt-1 block text-[13.5px] font-medium tabular-nums"
       >
         {formatAssetDate(timestamp, locale, true)}
       </time>
@@ -1165,14 +1165,14 @@ function RenameAsset({
             }
           }}
           maxLength={120}
-          className="h-8 min-w-0 flex-1 rounded-[5px] border bg-background px-2.5 text-[12.5px] outline-none ring-ring/40 focus:ring-2"
+          className="h-8 min-w-0 flex-1 rounded-[5px] border bg-background px-2.5 text-[14px] outline-none ring-ring/40 focus:ring-2"
         />
-        <span className="hidden w-40 shrink-0 truncate font-mono text-[11px] text-muted-foreground md:block">
+        <span className="hidden w-40 shrink-0 truncate font-mono text-[12.5px] text-muted-foreground md:block">
           {asset.mime}
         </span>
         <time
           dateTime={assetDateTime(asset.mtime)}
-          className="hidden w-28 shrink-0 text-[11.5px] text-muted-foreground lg:block"
+          className="hidden w-28 shrink-0 text-[13px] text-muted-foreground lg:block"
         >
           <span className="sr-only">{t.asset.modifiedAt}: </span>
           {formatAssetDate(asset.mtime, t.id)}
@@ -1297,7 +1297,7 @@ function DeleteDialog({
           </DialogDescription>
         </DialogHeader>
         {inUse && usages && (
-          <ul className="max-h-40 overflow-y-auto rounded-[5px] border border-hairline bg-muted/40 px-3 py-2 font-mono text-[11.5px] leading-relaxed">
+          <ul className="max-h-40 overflow-y-auto rounded-[5px] border border-hairline bg-muted/40 px-3 py-2 font-mono text-[13px] leading-relaxed">
             {usages.map((u) => (
               <li key={u.slideId} className="flex items-center justify-between gap-3">
                 <span className="truncate">{u.slideId}</span>
@@ -1371,7 +1371,7 @@ function PreviewDialog({
           <AssetTimestamp label={t.asset.createdAt} timestamp={asset.createdAt} locale={t.id} />
           <AssetTimestamp label={t.asset.modifiedAt} timestamp={asset.mtime} locale={t.id} />
         </div>
-        <div className="rounded-[5px] border border-hairline bg-muted/50 px-3 py-2 font-mono text-[11.5px] leading-relaxed">
+        <div className="rounded-[5px] border border-hairline bg-muted/50 px-3 py-2 font-mono text-[13px] leading-relaxed">
           <span className="text-muted-foreground">{t.asset.importHintComment}</span>
           <span className="text-brand">'{importPath}'</span>
           <span className="text-muted-foreground">{t.asset.importHintSemi}</span>
@@ -1446,7 +1446,9 @@ function FontPreview({ asset }: { asset: AssetEntry }) {
       >
         {FONT_PREVIEW_SIZES.map((size) => (
           <div key={size} className="flex items-baseline gap-3">
-            <span className="w-7 shrink-0 font-mono text-[10px] text-muted-foreground">{size}</span>
+            <span className="w-7 shrink-0 font-mono text-[11.5px] text-muted-foreground">
+              {size}
+            </span>
             <span
               className="min-w-0 break-words"
               style={{ fontFamily: `'${family}', sans-serif`, fontSize: size, lineHeight: 1.25 }}
@@ -1543,7 +1545,9 @@ function LogoSearchDialog({
               </div>
               <div>
                 <p className="text-sm font-medium">{t.asset.logoSearchErrorTitle}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{t.asset.logoSearchErrorBody}</p>
+                <p className="mt-1 text-[13px] text-muted-foreground">
+                  {t.asset.logoSearchErrorBody}
+                </p>
               </div>
               <Button
                 variant="outline"
@@ -1577,7 +1581,7 @@ function LogoSearchDialog({
                     t.asset.logoSearchEmpty
                   )}
                 </p>
-                <p className="mt-1 text-xs text-muted-foreground">
+                <p className="mt-1 text-[13px] text-muted-foreground">
                   {t.asset.logoSearchEmptyHintPrefix}
                   <a
                     href="https://svgl.app"
@@ -1672,14 +1676,14 @@ function LogoResultCard({
       </div>
       <div className="flex flex-col gap-1.5 border-t bg-card px-2.5 py-2">
         <div className="min-w-0">
-          <div className="truncate text-xs font-medium" title={item.title}>
+          <div className="truncate text-[13px] font-medium" title={item.title}>
             {item.title}
           </div>
-          <div className="truncate text-[10px] text-muted-foreground">{category}</div>
+          <div className="truncate text-[11.5px] text-muted-foreground">{category}</div>
         </div>
         <div className="flex items-center gap-1.5">
           {hasVariants ? (
-            <div className="flex overflow-hidden rounded-md border text-[10px]">
+            <div className="flex overflow-hidden rounded-md border text-[11.5px]">
               <button
                 type="button"
                 onClick={() => setVariant('light')}
@@ -1718,7 +1722,7 @@ function LogoResultCard({
                 toast.error(err instanceof Error ? err.message : t.asset.toastDownloadFailed);
               }
             }}
-            className="ml-auto h-6 px-2 text-[11px]"
+            className="ml-auto h-6 px-2 text-[12.5px]"
           >
             {pending ? (
               <Loader2 className="size-3 animate-spin motion-reduce:animate-none" />
@@ -1848,7 +1852,9 @@ function FontSearchDialog({
               </div>
               <div>
                 <p className="text-sm font-medium">{t.asset.fontSearchErrorTitle}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{t.asset.fontSearchErrorBody}</p>
+                <p className="mt-1 text-[13px] text-muted-foreground">
+                  {t.asset.fontSearchErrorBody}
+                </p>
               </div>
               <Button
                 variant="outline"
@@ -1882,7 +1888,7 @@ function FontSearchDialog({
                     t.asset.fontSearchEmpty
                   )}
                 </p>
-                <p className="mt-1 text-xs text-muted-foreground">
+                <p className="mt-1 text-[13px] text-muted-foreground">
                   {t.asset.fontSearchEmptyHintPrefix}
                   <a
                     href="https://fonts.google.com"
@@ -1976,11 +1982,11 @@ function FontResultCard({
     <div className="group flex items-center gap-3 rounded-lg border bg-card px-3 py-2.5">
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="truncate text-[11px] font-medium" title={item.family}>
+          <span className="truncate text-[12.5px] font-medium" title={item.family}>
             {item.family}
           </span>
           {item.category ? (
-            <span className="shrink-0 text-[10px] text-muted-foreground">{item.category}</span>
+            <span className="shrink-0 text-[11.5px] text-muted-foreground">{item.category}</span>
           ) : null}
         </div>
         <div
@@ -2001,7 +2007,7 @@ function FontResultCard({
             aria-label={t.asset.fontWeightLabel}
             value={variant}
             onChange={(e) => setVariant(e.target.value)}
-            className="h-6 w-30 rounded-md border bg-background px-1.5 text-[11px] outline-none focus-visible:ring-2 focus-visible:ring-ring/30"
+            className="h-6 w-30 rounded-md border bg-background px-1.5 text-[12.5px] outline-none focus-visible:ring-2 focus-visible:ring-ring/30"
           >
             {item.variants.map((v) => (
               <option key={v} value={v}>
@@ -2022,7 +2028,7 @@ function FontResultCard({
               toast.error(err instanceof Error ? err.message : t.asset.toastFontDownloadFailed);
             }
           }}
-          className="h-6 px-2 text-[11px]"
+          className="h-6 px-2 text-[12.5px]"
         >
           {pending ? <Loader2 className="size-3 animate-spin" /> : t.common.add}
         </Button>

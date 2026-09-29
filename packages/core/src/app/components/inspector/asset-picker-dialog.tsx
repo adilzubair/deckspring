@@ -76,7 +76,7 @@ export function AssetPickerDialog({
         <label
           htmlFor={inputId}
           className={cn(
-            'absolute right-12 top-3.5 inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-[5px] border border-border bg-card px-2 text-[12px] font-medium transition-colors',
+            'absolute right-12 top-3.5 inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-[5px] border border-border bg-card px-2 text-[13.5px] font-medium transition-colors',
             'hover:bg-muted/60 hover:border-foreground/20 active:translate-y-px',
             uploading && 'pointer-events-none opacity-60',
           )}
@@ -128,11 +128,11 @@ export function AssetPickerDialog({
           }}
         >
           {loading ? (
-            <p className="px-1 py-6 text-center text-xs text-muted-foreground">
+            <p className="px-1 py-6 text-center text-[13px] text-muted-foreground">
               {t.inspector.pickerLoading}
             </p>
           ) : images.length === 0 ? (
-            <p className="px-1 py-6 text-center text-xs text-muted-foreground">
+            <p className="px-1 py-6 text-center text-[13px] text-muted-foreground">
               {t.inspector.pickerEmpty}
             </p>
           ) : (
@@ -157,7 +157,7 @@ export function AssetPickerDialog({
                     />
                   </div>
                   <div className="border-t px-2 py-1.5">
-                    <div className="truncate text-[11px] font-medium" title={asset.name}>
+                    <div className="truncate text-[12.5px] font-medium" title={asset.name}>
                       {asset.name}
                     </div>
                   </div>
@@ -175,7 +175,7 @@ export function AssetPickerDialog({
             <div className="absolute inset-0 bg-brand/5" />
             <div className="absolute inset-1 rounded-[8px] border border-dashed border-brand/40" />
             <div className="absolute inset-x-0 bottom-4 flex justify-center">
-              <div className="flex items-center gap-2 rounded-[6px] border border-border bg-card px-3 py-1.5 text-[12px] font-medium shadow-floating">
+              <div className="flex items-center gap-2 rounded-[6px] border border-border bg-card px-3 py-1.5 text-[13.5px] font-medium shadow-floating">
                 <ArrowDownToLine className="size-3.5 text-brand" />
                 <span>{t.asset.dropToUpload}</span>
               </div>
