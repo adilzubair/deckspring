@@ -1,4 +1,13 @@
-import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
+import config from 'virtual:deckspring/config';
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Copy,
+  Pencil,
+  RefreshCw,
+  Trash2,
+} from 'lucide-react';
 import { Fragment, type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -10,7 +19,23 @@ import { loadSlide, slidesByTheme } from '../../lib/slides';
 import { loadThemeDemo, type ThemeDemoModule, themes } from '../../lib/themes';
 import { SlideCanvas } from '../slide-canvas';
 
-export function ThemeDetail({ themeId, onBack }: { themeId: string; onBack: () => void }) {
+type StudioThemeActions = {
+  editLabel: string;
+  onEdit: () => void;
+  onDuplicate?: () => void;
+  onRepair?: () => void;
+  onDelete: () => void;
+};
+
+export function ThemeDetail({
+  themeId,
+  onBack,
+  studioActions,
+}: {
+  themeId: string;
+  onBack: () => void;
+  studioActions?: StudioThemeActions;
+}) {
   const t = useLocale();
   const theme = useMemo(() => themes.find((th) => th.id === themeId), [themeId]);
   const [demo, setDemo] = useState<ThemeDemoModule | null>(null);
@@ -84,15 +109,41 @@ export function ThemeDetail({ themeId, onBack }: { themeId: string; onBack: () =
         </Button>
       </div>
 
-      <header className="flex flex-wrap items-baseline gap-3">
-        <h2 className="font-heading text-[19px] font-semibold leading-none tracking-[-0.015em] md:text-[21px]">
-          {theme.name}
-        </h2>
-        {theme.description ? (
-          <p className="basis-full text-[14px] leading-relaxed text-muted-foreground">
-            {theme.description}
-          </p>
-        ) : null}
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <h2 className="font-heading text-[19px] font-semibold leading-none tracking-[-0.015em] md:text-[21px]">
+            {theme.name}
+          </h2>
+          {theme.description ? (
+            <p className="mt-2 max-w-3xl text-[14px] leading-relaxed text-muted-foreground">
+              {theme.description}
+            </p>
+          ) : null}
+        </div>
+        {studioActions && (
+          <div className="flex flex-wrap items-center gap-2">
+            <Button variant="default" onClick={studioActions.onEdit}>
+              <Pencil />
+              {studioActions.editLabel}
+            </Button>
+            {studioActions.onDuplicate && (
+              <Button variant="outline" onClick={studioActions.onDuplicate}>
+                <Copy />
+                {t.themes.duplicateTheme}
+              </Button>
+            )}
+            {studioActions.onRepair && (
+              <Button variant="outline" onClick={studioActions.onRepair}>
+                <RefreshCw />
+                {t.themes.repairPreview}
+              </Button>
+            )}
+            <Button variant="ghost" className="text-destructive" onClick={studioActions.onDelete}>
+              <Trash2 />
+              {t.themes.deleteTheme}
+            </Button>
+          </div>
+        )}
       </header>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] lg:gap-8">
@@ -295,13 +346,19 @@ function NoDemoLargeState() {
         <p className="font-heading text-[15px] font-semibold tracking-tight">
           {t.themes.noDemoYet}
         </p>
-        <p className="mt-1.5 text-[14px] leading-relaxed text-muted-foreground">
-          {t.themes.noDemoHintPrefix}
-          <code className="rounded-[4px] bg-card px-1.5 py-0.5 font-mono text-[13px] text-foreground">
-            /create-theme
-          </code>
-          {t.themes.noDemoHintSuffix}
-        </p>
+        {config.studio ? (
+          <p className="mt-1.5 text-[14px] leading-relaxed text-muted-foreground">
+            {t.themes.studioNoDemoHint}
+          </p>
+        ) : (
+          <p className="mt-1.5 text-[14px] leading-relaxed text-muted-foreground">
+            {t.themes.noDemoHintPrefix}
+            <code className="rounded-[4px] bg-card px-1.5 py-0.5 font-mono text-[13px] text-foreground">
+              /create-theme
+            </code>
+            {t.themes.noDemoHintSuffix}
+          </p>
+        )}
       </div>
     </div>
   );

@@ -2,4 +2,4 @@
 '@deckspring/core': minor
 ---
 
-Show local Studio generation and reviewed AI comment edits inside the Slides view.
+Add UI-first Studio workflows for validated theme creation and management, saved-theme deck generation, shared model connections, and reviewed AI comment edits.

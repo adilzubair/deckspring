@@ -1,15 +1,23 @@
-import { Palette } from 'lucide-react';
+import config from 'virtual:deckspring/config';
+import { Palette, Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
 import { format, useLocale } from '@/lib/use-locale';
 import { SlidePageProvider } from '../../lib/page-context';
 import { loadThemeDemo, type Theme, type ThemeDemoModule, themes } from '../../lib/themes';
 import { SlideCanvas } from '../slide-canvas';
 
-export function ThemesGallery({ onOpen }: { onOpen: (id: string) => void }) {
+export function ThemesGallery({
+  onOpen,
+  onCreate,
+}: {
+  onOpen: (id: string) => void;
+  onCreate?: () => void;
+}) {
   const t = useLocale();
 
   if (themes.length === 0) {
-    return <ThemesEmptyState />;
+    return <ThemesEmptyState onCreate={onCreate} />;
   }
 
   return (
@@ -100,19 +108,25 @@ function NoDemoState() {
         <p className="font-heading text-[14px] font-semibold tracking-tight text-foreground/80">
           {t.themes.noDemoYet}
         </p>
-        <p className="mt-1 text-[12.5px] leading-snug text-muted-foreground">
-          {t.themes.noDemoHintPrefix}
-          <code className="rounded-[3px] bg-card px-1 py-0.5 font-mono text-[12px] text-foreground">
-            /create-theme
-          </code>
-          {t.themes.noDemoHintSuffix}
-        </p>
+        {config.studio ? (
+          <p className="mt-1 text-[12.5px] leading-snug text-muted-foreground">
+            {t.themes.studioNoDemoHint}
+          </p>
+        ) : (
+          <p className="mt-1 text-[12.5px] leading-snug text-muted-foreground">
+            {t.themes.noDemoHintPrefix}
+            <code className="rounded-[3px] bg-card px-1 py-0.5 font-mono text-[12px] text-foreground">
+              /create-theme
+            </code>
+            {t.themes.noDemoHintSuffix}
+          </p>
+        )}
       </div>
     </div>
   );
 }
 
-function ThemesEmptyState() {
+function ThemesEmptyState({ onCreate }: { onCreate?: () => void }) {
   const t = useLocale();
   return (
     <div className="rounded-[8px] border border-dashed border-border px-8 py-20">
@@ -121,13 +135,27 @@ function ThemesEmptyState() {
         <p className="mt-4 font-heading text-[16px] font-semibold tracking-tight">
           {t.themes.noThemesTitle}
         </p>
-        <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">
-          {t.themes.noThemesHintPrefix}
-          <code className="rounded-[4px] bg-muted px-1.5 py-0.5 font-mono text-[13px] text-foreground">
-            /create-theme
-          </code>
-          {t.themes.noThemesHintSuffix}
-        </p>
+        {config.studio ? (
+          <>
+            <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">
+              {t.themes.studioEmptyHint}
+            </p>
+            {onCreate && (
+              <Button variant="brand" className="mt-5" onClick={onCreate}>
+                <Plus />
+                {t.themes.createTheme}
+              </Button>
+            )}
+          </>
+        ) : (
+          <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">
+            {t.themes.noThemesHintPrefix}
+            <code className="rounded-[4px] bg-muted px-1.5 py-0.5 font-mono text-[13px] text-foreground">
+              /create-theme
+            </code>
+            {t.themes.noThemesHintSuffix}
+          </p>
+        )}
       </div>
     </div>
   );

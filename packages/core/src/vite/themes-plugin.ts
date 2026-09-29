@@ -19,6 +19,8 @@ function resolved(id: string): string {
 type Frontmatter = {
   name: string;
   description: string;
+  mode: 'light' | 'dark' | null;
+  values: Record<string, string>;
 };
 
 type ParsedTheme = {
@@ -40,10 +42,13 @@ function parseFrontmatter(raw: string, themeId: string): { fm: Frontmatter; body
     const m = line.match(/^([A-Za-z0-9_-]+)\s*:\s*(.*)$/);
     if (!m) continue;
     let value = m[2].trim();
-    if (
-      (value.startsWith('"') && value.endsWith('"')) ||
-      (value.startsWith("'") && value.endsWith("'"))
-    ) {
+    if (value.startsWith('"') && value.endsWith('"')) {
+      try {
+        value = JSON.parse(value);
+      } catch {
+        value = value.slice(1, -1);
+      }
+    } else if (value.startsWith("'") && value.endsWith("'")) {
       value = value.slice(1, -1);
     }
     data[m[1]] = value;
@@ -53,9 +58,96 @@ function parseFrontmatter(raw: string, themeId: string): { fm: Frontmatter; body
     fm: {
       name: data.name || themeId,
       description: data.description || '',
+      mode: data.mode === 'light' || data.mode === 'dark' ? data.mode : null,
+      values: data,
     },
     body: body.trim(),
   };
+}
+
+function studioSpec(frontmatter: Frontmatter, body: string) {
+  const data = frontmatter.values;
+  if (data['studio-spec'] !== '1' || !frontmatter.mode) return null;
+  const integer = (key: string) => Number.parseInt(data[key] ?? '', 10);
+  const aesthetic =
+    data.aesthetic || body.match(/^## Aesthetic\r?\n+([\s\S]*?)(?=^## |$)/m)?.[1]?.trim() || '';
+  const spec = {
+    version: 1,
+    name: frontmatter.name,
+    description: frontmatter.description,
+    mode: frontmatter.mode,
+    palette: {
+      background: data.background,
+      text: data.text,
+      accent: data.accent,
+      muted: data.muted,
+      surface: data.surface,
+      border: data.border,
+    },
+    typography: {
+      display: data['display-font'],
+      body: data['body-font'],
+      mono: data['mono-font'],
+      headingWeight: integer('heading-weight'),
+      bodyWeight: integer('body-weight'),
+    },
+    layout: {
+      composition: data.composition,
+      alignment: data.alignment,
+      padding: integer('padding'),
+      radius: integer('radius'),
+    },
+    motif: data.motif,
+    motion: data.motion,
+    aesthetic,
+  };
+  const requiredStrings = [
+    spec.name,
+    spec.description,
+    spec.palette.background,
+    spec.palette.text,
+    spec.palette.accent,
+    spec.palette.muted,
+    spec.palette.surface,
+    spec.palette.border,
+    spec.typography.display,
+    spec.typography.body,
+    spec.typography.mono,
+    spec.layout.composition,
+    spec.layout.alignment,
+    spec.motif,
+    spec.motion,
+    spec.aesthetic,
+  ];
+  if (requiredStrings.some((value) => !value)) return null;
+  const colors = Object.values(spec.palette);
+  if (
+    colors.some((value) => !/^#[0-9a-f]{6}$/i.test(value)) ||
+    !['editorial', 'modular', 'split', 'poster'].includes(spec.layout.composition) ||
+    !['left', 'center'].includes(spec.layout.alignment) ||
+    !['line', 'block', 'dot', 'frame', 'glow'].includes(spec.motif) ||
+    !['static', 'subtle', 'rich'].includes(spec.motion) ||
+    !Number.isFinite(spec.typography.headingWeight) ||
+    !Number.isFinite(spec.typography.bodyWeight) ||
+    !Number.isFinite(spec.layout.padding) ||
+    !Number.isFinite(spec.layout.radius) ||
+    spec.typography.headingWeight < 400 ||
+    spec.typography.headingWeight > 900 ||
+    spec.typography.bodyWeight < 300 ||
+    spec.typography.bodyWeight > 700 ||
+    spec.layout.padding < 64 ||
+    spec.layout.padding > 180 ||
+    spec.layout.radius < 0 ||
+    spec.layout.radius > 48
+  ) {
+    return null;
+  }
+  return spec;
+}
+
+export function parseStudioThemeSpec(raw: string, themeId = 'theme') {
+  const { fm, body } = parseFrontmatter(raw, themeId);
+  return studioSpec(fm, body);
 }
 
 async function findThemes(userCwd: string, themesDir: string): Promise<string[]> {
@@ -82,13 +174,19 @@ async function readTheme(mdAbs: string, themesRoot: string): Promise<ParsedTheme
 }
 
 function generateThemesModule(themes: ParsedTheme[], isDev: boolean): string {
-  const meta = themes.map((t) => ({
-    id: t.id,
-    name: t.frontmatter.name,
-    description: t.frontmatter.description,
-    body: t.body,
-    hasDemo: t.demoAbs !== null,
-  }));
+  const meta = themes.map((t) => {
+    const spec = studioSpec(t.frontmatter, t.body);
+    return {
+      id: t.id,
+      name: t.frontmatter.name,
+      description: t.frontmatter.description,
+      mode: t.frontmatter.mode,
+      body: t.body,
+      hasDemo: t.demoAbs !== null,
+      studioSpec: spec,
+      studioReady: spec !== null,
+    };
+  });
 
   const cases = themes
     .flatMap((t) => {

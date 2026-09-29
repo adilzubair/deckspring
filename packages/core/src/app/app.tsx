@@ -1,5 +1,6 @@
 import config from 'virtual:deckspring/config';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { StudioModelsProvider } from './components/studio/studio-models';
 import { Toaster } from './components/ui/sonner';
 import { TooltipProvider } from './components/ui/tooltip';
 import { useLocale } from './lib/use-locale';
@@ -8,30 +9,41 @@ import { Home } from './routes/home';
 import { HomeShell } from './routes/home-shell';
 import { Presenter } from './routes/presenter';
 import { Slide } from './routes/slide';
-import { ThemeDetailPage, ThemesGalleryPage } from './routes/themes';
+import {
+  ThemeCreatePage,
+  ThemeDetailPage,
+  ThemeEditPage,
+  ThemesGalleryPage,
+} from './routes/themes';
 
 export function App() {
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL}>
-      {/* One app-wide provider so adjacent tooltips group: after the first
-          opens, moving along a toolbar shows the rest instantly. */}
-      <TooltipProvider delay={200}>
-        <Routes>
-          {config.build.showSlideBrowser && (
-            <Route element={<HomeShell />}>
-              <Route path="/" element={<Home />} />
-              <Route path="/themes" element={<ThemesGalleryPage />} />
-              <Route path="/themes/:themeId" element={<ThemeDetailPage />} />
-              <Route path="/assets" element={<AssetsPage />} />
-              {config.studio && <Route path="/studio/*" element={<Navigate to="/" replace />} />}
-            </Route>
-          )}
-          <Route path="/s/:slideId" element={<Slide />} />
-          <Route path="/s/:slideId/presenter" element={<Presenter />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </TooltipProvider>
-      <Toaster />
+      <StudioModelsProvider enabled={Boolean(config.studio)}>
+        {/* One app-wide provider so adjacent tooltips group: after the first
+            opens, moving along a toolbar shows the rest instantly. */}
+        <TooltipProvider delay={200}>
+          <Routes>
+            {config.build.showSlideBrowser && (
+              <Route element={<HomeShell />}>
+                <Route path="/" element={<Home />} />
+                <Route path="/themes" element={<ThemesGalleryPage />} />
+                {config.studio && <Route path="/themes/new" element={<ThemeCreatePage />} />}
+                {config.studio && (
+                  <Route path="/themes/:themeId/edit" element={<ThemeEditPage />} />
+                )}
+                <Route path="/themes/:themeId" element={<ThemeDetailPage />} />
+                <Route path="/assets" element={<AssetsPage />} />
+                {config.studio && <Route path="/studio/*" element={<Navigate to="/" replace />} />}
+              </Route>
+            )}
+            <Route path="/s/:slideId" element={<Slide />} />
+            <Route path="/s/:slideId/presenter" element={<Presenter />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </TooltipProvider>
+        <Toaster />
+      </StudioModelsProvider>
     </BrowserRouter>
   );
 }

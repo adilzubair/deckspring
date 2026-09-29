@@ -1,4 +1,5 @@
 import { randomBytes } from 'node:crypto';
+import { validateThemeSpec } from './theme.mjs';
 
 const LAYOUTS = new Set(['cover', 'statement', 'bullets', 'comparison', 'closing']);
 export const THEMES = {
@@ -81,15 +82,15 @@ export function makeDeckId(title) {
 
 export function renderDeckSource(
   deck,
-  theme,
+  style,
   createdAt = new Date().toISOString(),
   language = 'en',
 ) {
-  if (!THEMES[theme]) throw new Error('Choose a valid theme.');
   if (language !== 'en' && language !== 'ar') throw new Error('Choose a valid language.');
+  const resolved = resolveDeckStyle(style);
   const data = JSON.stringify(deck.slides, null, 2);
-  const colors = JSON.stringify(THEMES[theme]);
-  const meta = JSON.stringify({ title: deck.title, createdAt });
+  const colors = JSON.stringify(resolved.colors);
+  const themeMeta = resolved.themeId ? `, theme: ${JSON.stringify(resolved.themeId)}` : '';
   return `import type { CSSProperties } from 'react';
 import type { Page, SlideMeta } from '@deckspring/core';
 
@@ -107,7 +108,12 @@ type SlideData = {
 };
 
 const colors = ${colors};
+const visual = ${JSON.stringify(resolved.visual)};
 const rtl = ${language === 'ar'};
+const motionCss = visual.motion === 'static' ? '' :
+  \`@keyframes ds-theme-enter { from { opacity: 0; transform: translateY(\${visual.motion === 'rich' ? '24px' : '14px'}); } to { opacity: 1; transform: translateY(0); } }
+  .ds-theme-enter { animation: ds-theme-enter \${visual.motion === 'rich' ? '780ms' : '540ms'} cubic-bezier(0.22, 1, 0.36, 1) both; }
+  @media (prefers-reduced-motion: reduce) { .ds-theme-enter { animation: none !important; } }\`;
 const slideData: SlideData[] = ${data};
 const frame: CSSProperties = {
   width: 1920,
@@ -115,10 +121,11 @@ const frame: CSSProperties = {
   boxSizing: 'border-box',
   position: 'relative',
   overflow: 'hidden',
-  padding: '105px 125px',
+  padding: visual.padding,
   background: colors.background,
   color: colors.ink,
-  fontFamily: rtl ? 'Arial, Tahoma, sans-serif' : 'Aptos, Inter, system-ui, sans-serif',
+  fontFamily: rtl ? 'Arial, Tahoma, sans-serif' : visual.bodyFont,
+  fontWeight: visual.bodyWeight,
   direction: rtl ? 'rtl' : 'ltr',
   textAlign: rtl ? 'right' : 'left',
 };
@@ -135,42 +142,92 @@ function BulletList({ items }: { items: string[] }) {
 function SlideContent({ item, index }: { item: SlideData; index: number }) {
   const isCover = item.layout === 'cover';
   const isClosing = item.layout === 'closing';
+  const contentMaxWidth = visual.composition === 'poster' ? 1120 : visual.composition === 'split' ? 1380 : 1500;
   return <div lang={rtl ? 'ar' : 'en'} style={frame}>
-    <div style={{ position: 'absolute', [rtl ? 'left' : 'right']: -215, top: -245, width: 800, height: 800, borderRadius: '50%', background: colors.soft }} />
-    <div style={{ position: 'absolute', [rtl ? 'left' : 'right']: 116, top: 120, width: 105, height: 105, borderRadius: '50%', background: colors.accent }} />
-    <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <style>{motionCss}</style>
+    {visual.motif === 'glow' ? <div style={{ position: 'absolute', [rtl ? 'left' : 'right']: -215, top: -245, width: 800, height: 800, borderRadius: '50%', background: \`radial-gradient(circle, \${colors.accent}88, transparent 68%)\` }} /> : visual.motif === 'frame' ? <div style={{ position: 'absolute', inset: 42, border: \`3px solid \${colors.soft}\`, borderRadius: visual.radius }} /> : visual.motif === 'block' ? <div style={{ position: 'absolute', [rtl ? 'left' : 'right']: 0, top: 0, width: 330, height: '100%', background: colors.soft }} /> : visual.motif === 'dot' ? <div style={{ position: 'absolute', [rtl ? 'left' : 'right']: 116, top: 120, width: 105, height: 105, borderRadius: '50%', background: colors.accent }} /> : <div style={{ position: 'absolute', left: 125, right: 125, top: 82, height: 8, background: colors.accent }} />}
+    <div className={visual.motion === 'static' ? undefined : 'ds-theme-enter'} style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ color: colors.accent, fontSize: 23, fontWeight: 700, letterSpacing: rtl ? 0 : '0.14em', textTransform: rtl ? 'none' : 'uppercase' }}>{item.kicker || (isCover ? (rtl ? 'عرض تقديمي' : 'Presentation') : 'Deckspring')}</div>
       {isCover || isClosing ? <div style={{ marginTop: 'auto', marginBottom: 'auto', maxWidth: 1280 }}>
         <div style={{ width: 105, height: 10, background: colors.accent, marginBottom: 48 }} />
-        <h1 style={{ margin: 0, fontSize: isCover ? (rtl ? 108 : 126) : (rtl ? 98 : 112), lineHeight: rtl ? 1.2 : 1.01, letterSpacing: rtl ? 0 : '-0.055em', fontWeight: 750 }}>{item.title}</h1>
+        <h1 style={{ margin: 0, fontFamily: visual.displayFont, fontSize: isCover ? (rtl ? 108 : 126) : (rtl ? 98 : 112), lineHeight: rtl ? 1.2 : 1.01, letterSpacing: rtl ? 0 : '-0.055em', fontWeight: visual.headingWeight }}>{item.title}</h1>
         {(item.body || ${JSON.stringify(deck.subtitle)}) && <p style={{ margin: '38px 0 0', maxWidth: 1100, fontSize: 38, lineHeight: 1.3 }}>{item.body || ${JSON.stringify(deck.subtitle)}}</p>}
       </div> : <>
-        <h1 style={{ margin: '62px 0 0', maxWidth: 1500, fontSize: item.layout === 'statement' ? (rtl ? 96 : 112) : (rtl ? 74 : 82), lineHeight: rtl ? 1.2 : 1.07, letterSpacing: rtl ? 0 : '-0.045em', fontWeight: 730 }}>{item.title}</h1>
+        <h1 style={{ margin: '62px 0 0', maxWidth: contentMaxWidth, fontFamily: visual.displayFont, fontSize: item.layout === 'statement' ? (rtl ? 96 : 112) : (rtl ? 74 : 82), lineHeight: rtl ? 1.2 : 1.07, letterSpacing: rtl ? 0 : '-0.045em', fontWeight: visual.headingWeight }}>{item.title}</h1>
         {item.layout === 'statement' && item.body && <p style={{ margin: '55px 0 0', maxWidth: 1260, fontSize: 43, lineHeight: 1.3 }}>{item.body}</p>}
         {item.layout === 'bullets' && <div style={{ maxWidth: 1430 }}>
           {item.body && <p style={{ margin: '28px 0 0', fontSize: 38, lineHeight: 1.3 }}>{item.body}</p>}
           <BulletList items={item.bullets} />
         </div>}
-        {item.layout === 'comparison' && <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 38, marginTop: 68 }}>
+        {item.layout === 'comparison' && <div style={{ display: 'grid', gridTemplateColumns: visual.composition === 'editorial' ? '1.15fr 0.85fr' : '1fr 1fr', gap: 38, marginTop: 68 }}>
           {[{ title: item.leftTitle, bullets: item.leftBullets }, { title: item.rightTitle, bullets: item.rightBullets }].map((column, side) =>
-            <div key={side} style={{ minHeight: 450, padding: '43px 48px', background: colors.soft, borderTop: \`9px solid \${colors.accent}\` }}>
+            <div key={side} style={{ minHeight: 450, padding: '43px 48px', background: colors.soft, borderTop: \`9px solid \${colors.accent}\`, borderRadius: visual.radius }}>
               <h2 style={{ margin: 0, fontSize: 48, letterSpacing: rtl ? 0 : '-0.03em' }}>{column.title}</h2>
               <BulletList items={column.bullets} />
             </div>)}
         </div>}
       </>}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: 32, borderTop: \`2px solid \${colors.soft}\`, fontSize: 22 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: 32, borderTop: \`2px solid \${colors.border}\`, color: colors.muted, fontSize: 22 }}>
         <span>${JSON.stringify(deck.title)}</span><span dir="ltr">{String(index + 1).padStart(2, '0')} / {String(slideData.length).padStart(2, '0')}</span>
       </div>
     </div>
   </div>;
 }
 
-export const meta: SlideMeta = ${meta};
+export const meta: SlideMeta = { title: ${JSON.stringify(deck.title)}, createdAt: ${JSON.stringify(createdAt)}${themeMeta} };
 export const notes = slideData.map((item) => item.notes);
 const pages: Page[] = slideData.map((item, index) => function SlidePage() {
   return <SlideContent item={item} index={index} />;
 });
 export default pages;
 `;
+}
+
+function resolveDeckStyle(style) {
+  if (typeof style === 'string') {
+    if (!THEMES[style]) throw new Error('Choose a valid visual style.');
+    return {
+      colors: {
+        ...THEMES[style],
+        muted: THEMES[style].ink,
+        border: THEMES[style].soft,
+      },
+      themeId: null,
+      visual: {
+        displayFont: 'Aptos, Inter, system-ui, sans-serif',
+        bodyFont: 'Aptos, Inter, system-ui, sans-serif',
+        headingWeight: 750,
+        bodyWeight: 400,
+        padding: '105px 125px',
+        radius: 0,
+        motif: 'dot',
+        composition: 'editorial',
+        motion: 'static',
+      },
+    };
+  }
+  if (style?.kind !== 'theme') throw new Error('Choose a valid visual style.');
+  const spec = validateThemeSpec(style.spec);
+  return {
+    colors: {
+      background: spec.palette.background,
+      ink: spec.palette.text,
+      accent: spec.palette.accent,
+      soft: spec.palette.surface,
+      muted: spec.palette.muted,
+      border: spec.palette.border,
+    },
+    themeId: style.id,
+    visual: {
+      displayFont: spec.typography.display,
+      bodyFont: spec.typography.body,
+      headingWeight: spec.typography.headingWeight,
+      bodyWeight: spec.typography.bodyWeight,
+      padding: `${spec.layout.padding}px`,
+      radius: spec.layout.radius,
+      motif: spec.motif,
+      composition: spec.layout.composition,
+      motion: spec.motion,
+    },
+  };
 }

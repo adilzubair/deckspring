@@ -18,6 +18,14 @@ If you author more than two decks you'll want them to look related — a theme
 captures the recipe in one place any deck can reference, and the demo makes
 it browsable in the dev UI before you pick one.
 
+## Create and manage themes in Studio
+
+In the local Studio, open **Themes** and choose **Create theme**. You can describe a new visual direction or extract one from an existing deck. Studio asks the selected model for validated theme data, never executable code, and opens an editor for identity, palette, typography, composition, motif, spacing, corner style, and motion. A trusted three-page preview updates as you edit.
+
+Saving writes the markdown and demo as a pair. Saved themes support edit, duplicate, preview repair, and delete actions, and appear beside the built-in quick styles when generating a deck. Theme IDs become filenames and stay immutable after saving. Deleting a referenced theme detaches its metadata link from affected decks without rewriting their visual source.
+
+Existing free-form theme recipes remain browseable. Choose **Import into Studio** on one to convert it to the validated Studio format while preserving its visual direction.
+
 ## File layout
 
 ```text
@@ -30,7 +38,7 @@ themes/
 └── retro-print.demo.tsx
 ```
 
-The markdown is free-form. A useful template:
+Framework themes may use free-form markdown. Studio themes add validated machine-readable frontmatter while preserving the canonical readable recipe. A minimal framework template:
 
 ```md title="themes/corporate.md"
 ---
@@ -74,7 +82,9 @@ should match what `create-slide` will paste into a real slide.
 
 ## Using a theme
 
-When you call `/create-slide`, mention the theme by name:
+In Studio, select the saved theme from **Visual style** before choosing **Generate deck**. Studio applies its palette, typography, composition, motif, spacing, corners, and motion and records the theme ID in deck metadata.
+
+Outside Studio, the optional agent workflow can still mention a theme by name:
 
 ```text
 /create-slide for "Q3 board update — use the corporate theme"
@@ -85,6 +95,4 @@ and writes pages that match.
 
 ## Extracting a theme
 
-Already have a deck whose look you like? Use
-[`/create-theme`](/docs/skills/create-theme) to extract its design tokens
-into a reusable theme file.
+Already have a deck whose look you like? In Studio, choose **Create theme**, then **Extract from deck**. Framework users can optionally use [`/create-theme`](/docs/skills/create-theme) to author the paired files with an agent.

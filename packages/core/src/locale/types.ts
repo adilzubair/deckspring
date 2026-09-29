@@ -559,10 +559,22 @@ export type Locale = {
 
   themes: {
     title: string;
+    createTheme: string;
+    editTheme: string;
+    importIntoStudio: string;
+    duplicateTheme: string;
+    deleteTheme: string;
+    repairPreview: string;
+    repairComplete: string;
+    deleteComplete: string;
+    /** template: "Deleting this theme will detach it from {count} decks. Continue?" */
+    deleteConfirm: string;
     noThemesTitle: string;
+    studioEmptyHint: string;
     noThemesHintPrefix: string;
     noThemesHintSuffix: string;
     noDemoYet: string;
+    studioNoDemoHint: string;
     noDemoHintPrefix: string;
     noDemoHintSuffix: string;
     backToGallery: string;

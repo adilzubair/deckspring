@@ -42,3 +42,43 @@ test('requests Arabic copy and renders a right-to-left slide', () => {
   assert.match(source, /lang=\{rtl \? 'ar' : 'en'\}/);
   assert.match(source, /dir="ltr"/);
 });
+
+test('renders a saved Studio theme and links the generated deck metadata', () => {
+  const source = renderDeckSource(
+    validateDeck({ title: 'Themed', slides: [{ layout: 'cover', title: 'One' }] }, 1),
+    {
+      kind: 'theme',
+      id: 'signal-frame',
+      spec: {
+        name: 'Signal Frame',
+        description: 'A precise editorial theme.',
+        mode: 'light',
+        palette: {
+          background: '#F6F7FB',
+          text: '#172033',
+          accent: '#3157D5',
+          muted: '#61708A',
+          surface: '#FFFFFF',
+          border: '#CAD2E1',
+        },
+        typography: {
+          display: 'Aptos, system-ui, sans-serif',
+          body: 'Aptos, system-ui, sans-serif',
+          mono: 'Consolas, monospace',
+          headingWeight: 700,
+          bodyWeight: 400,
+        },
+        layout: { composition: 'editorial', alignment: 'left', padding: 112, radius: 8 },
+        motif: 'line',
+        motion: 'subtle',
+        aesthetic: 'One deliberate cobalt rule per page.',
+      },
+    },
+    '2026-01-01T00:00:00.000Z',
+  );
+  assert.match(source, /theme: "signal-frame"/);
+  assert.match(source, /#3157D5/);
+  assert.match(source, /padding: visual.padding/);
+  assert.match(source, /visual\.composition/);
+  assert.match(source, /prefers-reduced-motion/);
+});

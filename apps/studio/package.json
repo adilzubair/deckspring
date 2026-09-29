@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "node server.mjs",
     "build": "deckspring build",
-    "typecheck": "node --check server.mjs && node --check model.mjs && node --check deck.mjs && node --check comment-edits.mjs && tsc --noEmit",
-    "test": "node --test deck.test.mjs model.test.mjs comment-edits.test.mjs"
+    "typecheck": "node --check server.mjs && node --check model.mjs && node --check deck.mjs && node --check theme.mjs && node --check comment-edits.mjs && tsc --noEmit",
+    "test": "node --test deck.test.mjs model.test.mjs theme.test.mjs server.test.mjs comment-edits.test.mjs"
   },
   "dependencies": {
     "@babel/parser": "^7.29.2",

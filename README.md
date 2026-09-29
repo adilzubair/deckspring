@@ -24,12 +24,13 @@ You can also run the framework demo with `pnpm dev:demo`. The website and docume
 ## What you can do
 
 - Generate a deck from a prompt with your own model connection.
+- Create, extract, preview, and manage reusable themes entirely in Studio.
 - Edit slides visually or in their React source, and review AI-proposed edits before applying them.
 - Present with speaker notes, a timer, and a next-slide preview.
 - Export to static HTML, PDF, or editable PowerPoint.
 - Organize decks and local assets in the slide library.
 
-The Studio currently expects an OpenAI-compatible chat completions endpoint. It generates structured slide content in fixed layouts; it does not ask the model to write arbitrary code or fetch images. See [Studio details](apps/studio/README.md).
+The Studio currently expects an OpenAI-compatible chat completions endpoint. It generates validated deck and theme data, then renders trusted React templates; it does not execute model-written code or fetch images. See [Studio details](apps/studio/README.md).
 
 ## Repository
 

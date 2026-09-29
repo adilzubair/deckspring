@@ -1,6 +1,5 @@
 import { Loader2, Sparkles } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
@@ -12,9 +11,10 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useLocale } from '@/lib/use-locale';
+import { studioApi, studioError } from './studio-api';
 import { studioCopy } from './studio-copy';
+import { useStudioModels } from './studio-models';
 
-type Model = { id: string; name: string; model: string; hasKey: boolean };
 type Change = {
   commentId: string;
   note: string;
@@ -24,17 +24,6 @@ type Change = {
 };
 type Skipped = { commentId: string; note: string; reason: string };
 type Proposal = { proposalId: string | null; changes: Change[]; skipped: Skipped[] };
-
-async function postStudio<T>(route: string, body: object): Promise<T> {
-  const response = await fetch(`/__studio${route}`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-  const result = await response.json();
-  if (!response.ok) throw new Error(result.error || `Request failed (${response.status}).`);
-  return result as T;
-}
 
 export function StudioApplyComments({
   slideId,
@@ -47,9 +36,7 @@ export function StudioApplyComments({
 }) {
   const locale = useLocale();
   const copy = studioCopy[locale.id];
-  const [models, setModels] = useState<Model[]>([]);
-  const [modelsLoading, setModelsLoading] = useState(true);
-  const [selectedId, setSelectedId] = useState(() => localStorage.getItem('studio:model') ?? '');
+  const { models, loading: modelsLoading, selectedId, choose, openManager } = useStudioModels();
   const [loading, setLoading] = useState(false);
   const [applying, setApplying] = useState(false);
   const [proposal, setProposal] = useState<Proposal | null>(null);
@@ -58,38 +45,13 @@ export function StudioApplyComments({
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  useEffect(() => {
-    let cancelled = false;
-    fetch('/__studio/models')
-      .then(async (response) => {
-        if (!response.ok) throw new Error(copy.loadModels);
-        return (await response.json()) as { models: Model[] };
-      })
-      .then(({ models: loaded }) => {
-        if (cancelled) return;
-        setModels(loaded);
-        setSelectedId((current) =>
-          loaded.some((model) => model.id === current) ? current : (loaded[0]?.id ?? ''),
-        );
-      })
-      .catch((caught) => {
-        if (!cancelled) setError(caught instanceof Error ? caught.message : copy.loadModels);
-      })
-      .finally(() => {
-        if (!cancelled) setModelsLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [copy.loadModels]);
-
   async function propose() {
     if (!selectedId) return;
     setLoading(true);
     setError('');
     setSuccess('');
     try {
-      const result = await postStudio<Proposal>('/comments/propose', {
+      const result = await studioApi<Proposal>('POST', '/comments/propose', {
         slideId,
         modelId: selectedId,
       });
@@ -97,7 +59,7 @@ export function StudioApplyComments({
       setSelectedChanges(result.changes.map((change) => change.commentId));
       setReviewOpen(true);
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : copy.reviewError);
+      setError(studioError(caught) || copy.reviewError);
     } finally {
       setLoading(false);
     }
@@ -108,7 +70,7 @@ export function StudioApplyComments({
     setApplying(true);
     setError('');
     try {
-      const { applied } = await postStudio<{ applied: number }>('/comments/apply', {
+      const { applied } = await studioApi<{ applied: number }>('POST', '/comments/apply', {
         proposalId: proposal.proposalId,
         commentIds: selectedChanges,
       });
@@ -119,7 +81,7 @@ export function StudioApplyComments({
       setReviewOpen(false);
       setProposal(null);
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : copy.applyError);
+      setError(studioError(caught) || copy.applyError);
     } finally {
       setApplying(false);
     }
@@ -142,8 +104,7 @@ export function StudioApplyComments({
               id="comment-model"
               value={selectedId}
               onChange={(event) => {
-                setSelectedId(event.target.value);
-                localStorage.setItem('studio:model', event.target.value);
+                choose(event.target.value);
               }}
               className="mt-1.5 h-8 w-full rounded-[5px] border border-input bg-card px-2 text-[13px] outline-none focus:border-foreground/30"
             >
@@ -172,12 +133,15 @@ export function StudioApplyComments({
             </Button>
           </>
         ) : (
-          <p className="text-[12.5px] leading-4 text-muted-foreground">
-            <Link to="/" className="font-medium text-foreground underline underline-offset-2">
-              {copy.addModelInSlides}
-            </Link>{' '}
-            {copy.toApplyComments}
-          </p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="w-full"
+            onClick={() => openManager()}
+          >
+            {copy.addModel}
+          </Button>
         )}
         {success && (
           <p className="mt-2 text-[12.5px] text-foreground" role="status">

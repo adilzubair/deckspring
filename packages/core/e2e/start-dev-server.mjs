@@ -1,7 +1,7 @@
 // Boots `deckspring dev` for the e2e suite against a throwaway copy of the
 // fixture project (see scratch.mjs).
 import { spawn } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, mkdirSync, rmSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fixtureDir, prepareScratchProject } from './scratch.mjs';
@@ -19,27 +19,33 @@ if (!existsSync(path.join(fixtureDir, 'node_modules'))) {
 }
 
 const scratchDir = prepareScratchProject('dev');
+const args = process.argv.slice(2);
+const studioIndex = args.indexOf('--studio');
+const studio = studioIndex !== -1;
+if (studio) {
+  args.splice(studioIndex, 1);
+  const themesDir = path.join(scratchDir, 'themes');
+  rmSync(themesDir, { recursive: true, force: true });
+  mkdirSync(themesDir, { recursive: true });
+}
 
 // Bind to 127.0.0.1 explicitly. Vite's default host resolves to `localhost`,
 // which on CI runners can bind to IPv6 `::1` only, leaving Playwright's IPv4
 // `http://127.0.0.1` readiness probe hanging until the webServer timeout.
 const child = spawn(
   process.execPath,
-  [
-    path.join(coreRoot, 'bin.js'),
-    'dev',
-    '--no-skills-check',
-    '--host',
-    '127.0.0.1',
-    ...process.argv.slice(2),
-  ],
+  [path.join(coreRoot, 'bin.js'), 'dev', '--no-skills-check', '--host', '127.0.0.1', ...args],
   {
     cwd: scratchDir,
     stdio: 'inherit',
     // DECKSPRING_DEV_SUPERVISED=1 skips the CLI's supervisor fork so Playwright
     // manages a single server process. The skills drift check is already
     // disabled by the --no-skills-check flag above.
-    env: { ...process.env, DECKSPRING_DEV_SUPERVISED: '1' },
+    env: {
+      ...process.env,
+      DECKSPRING_DEV_SUPERVISED: '1',
+      ...(studio ? { DECKSPRING_E2E_STUDIO: '1' } : {}),
+    },
   },
 );
 child.on('exit', (code, signal) => process.exit(code ?? (signal ? 1 : 0)));

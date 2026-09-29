@@ -1,94 +1,36 @@
 import { ArrowUpRight, Check, KeyRound, Loader2, Plus, Sparkles } from 'lucide-react';
 import { type FormEvent, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { useLocale } from '@/lib/use-locale';
+import { themes } from '../../lib/themes';
+import { isLocalModel, studioApi, studioError } from './studio-api';
 import { studioCopy } from './studio-copy';
+import { modelIsReady, useStudioModels } from './studio-models';
 
-type Model = {
-  id: string;
-  name: string;
-  baseUrl: string;
-  model: string;
-  hasKey: boolean;
-};
-
-type ModelForm = {
-  name: string;
-  baseUrl: string;
-  model: string;
-  apiKey: string;
-};
-
-const EMPTY_FORM: ModelForm = { name: '', baseUrl: '', model: '', apiKey: '' };
 const PENDING_GENERATION_KEY = 'studio:pending-generation';
 
 const inputClass =
   'h-10 w-full rounded-[6px] border border-input bg-card px-3 text-[14px] text-foreground outline-none transition-colors placeholder:text-muted-foreground/65 focus:border-foreground/30 focus:ring-2 focus:ring-ring/20';
 
-async function studioApi<T>(method: string, route: string, body?: object): Promise<T> {
-  const response = await fetch(`/__studio${route}`, {
-    method,
-    headers: body ? { 'content-type': 'application/json' } : undefined,
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  const result = await response.json();
-  if (!response.ok) throw new Error(result.error || `Request failed (${response.status}).`);
-  return result as T;
-}
-
-function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : 'Something went wrong.';
-}
-
-function isLocalModel(profile: Model): boolean {
-  try {
-    return ['localhost', '127.0.0.1', '[::1]'].includes(new URL(profile.baseUrl).hostname);
-  } catch {
-    return false;
-  }
-}
-
 export function StudioPanel() {
   const locale = useLocale();
   const copy = studioCopy[locale.id];
-  const [models, setModels] = useState<Model[]>([]);
-  const [modelsLoading, setModelsLoading] = useState(true);
-  const [selectedId, setSelectedId] = useState(() => localStorage.getItem('studio:model') ?? '');
+  const {
+    models,
+    loading: modelsLoading,
+    error: modelsError,
+    selectedId,
+    selected,
+    choose,
+    openManager,
+  } = useStudioModels();
   const [prompt, setPrompt] = useState('');
   const [pageCount, setPageCount] = useState(6);
-  const [palette, setPalette] = useState('cobalt');
+  const [style, setStyle] = useState('builtin:cobalt');
   const [deckLanguage, setDeckLanguage] = useState<'en' | 'ar'>(locale.id);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState('');
   const [error, setError] = useState(false);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState<ModelForm>(EMPTY_FORM);
-  const [dialogBusy, setDialogBusy] = useState(false);
-  const [dialogStatus, setDialogStatus] = useState('');
-
-  useEffect(() => {
-    studioApi<{ models: Model[] }>('GET', '/models')
-      .then(({ models: loaded }) => {
-        setModels(loaded);
-        setSelectedId((current) =>
-          loaded.some((model) => model.id === current) ? current : (loaded[0]?.id ?? ''),
-        );
-      })
-      .catch((caught) => {
-        setError(true);
-        setStatus(`${copy.loadModelsError}: ${errorMessage(caught)}`);
-      })
-      .finally(() => setModelsLoading(false));
-  }, [copy.loadModelsError]);
 
   useEffect(() => {
     const requestId = sessionStorage.getItem(PENDING_GENERATION_KEY);
@@ -128,7 +70,7 @@ export function StudioPanel() {
         sessionStorage.removeItem(PENDING_GENERATION_KEY);
         setBusy(false);
         setError(true);
-        setStatus(`${copy.resumeError}: ${errorMessage(caught)}`);
+        setStatus(`${copy.resumeError}: ${studioError(caught)}`);
       }
     }
 
@@ -139,90 +81,7 @@ export function StudioPanel() {
     };
   }, [copy.generationFailed, copy.resumeError, copy.writingDeck]);
 
-  const selected = models.find((model) => model.id === selectedId);
-
   useEffect(() => setDeckLanguage(locale.id), [locale.id]);
-
-  function chooseModel(id: string) {
-    setSelectedId(id);
-    localStorage.setItem('studio:model', id);
-    setStatus('');
-  }
-
-  function openModel(profile?: Model) {
-    setEditingId(profile?.id ?? null);
-    setForm({
-      name: profile?.name ?? '',
-      baseUrl: profile?.baseUrl ?? '',
-      model: profile?.model ?? '',
-      apiKey: '',
-    });
-    setDialogStatus('');
-    setDialogOpen(true);
-  }
-
-  async function refreshModels(preferredId?: string) {
-    const { models: loaded } = await studioApi<{ models: Model[] }>('GET', '/models');
-    setModels(loaded);
-    const nextId =
-      preferredId && loaded.some((model) => model.id === preferredId)
-        ? preferredId
-        : loaded.some((model) => model.id === selectedId)
-          ? selectedId
-          : (loaded[0]?.id ?? '');
-    chooseModel(nextId);
-  }
-
-  async function saveModel(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setDialogBusy(true);
-    setDialogStatus('');
-    try {
-      const { model } = await studioApi<{ model: Model }>(
-        editingId ? 'PUT' : 'POST',
-        editingId ? `/models/${editingId}` : '/models',
-        form,
-      );
-      await refreshModels(model.id);
-      setDialogOpen(false);
-      setStatus(copy.modelSaved);
-      setError(false);
-    } catch (caught) {
-      setDialogStatus(errorMessage(caught));
-    } finally {
-      setDialogBusy(false);
-    }
-  }
-
-  async function deleteModel() {
-    if (!editingId || !window.confirm(copy.deleteConfirm)) return;
-    setDialogBusy(true);
-    try {
-      await studioApi('DELETE', `/models/${editingId}`);
-      await refreshModels();
-      setDialogOpen(false);
-      setStatus(copy.modelDeleted);
-      setError(false);
-    } catch (caught) {
-      setDialogStatus(errorMessage(caught));
-    } finally {
-      setDialogBusy(false);
-    }
-  }
-
-  async function testModel() {
-    if (!editingId) return;
-    setDialogBusy(true);
-    setDialogStatus(copy.contacting);
-    try {
-      await studioApi('POST', `/models/${editingId}/test`, {});
-      setDialogStatus(copy.connectionWorks);
-    } catch (caught) {
-      setDialogStatus(errorMessage(caught));
-    } finally {
-      setDialogBusy(false);
-    }
-  }
 
   async function generate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -231,8 +90,8 @@ export function StudioPanel() {
       setStatus(copy.chooseModel);
       return;
     }
-    if (!selected.hasKey && !isLocalModel(selected)) {
-      openModel(selected);
+    if (!modelIsReady(selected)) {
+      openManager(selected);
       setError(true);
       setStatus(copy.enterKey);
       return;
@@ -248,14 +107,16 @@ export function StudioPanel() {
         modelId: selectedId,
         prompt,
         pageCount,
-        theme: palette,
+        style: style.startsWith('theme:')
+          ? { kind: 'theme', id: style.slice('theme:'.length) }
+          : { kind: 'builtin', id: style.slice('builtin:'.length) },
         language: deckLanguage,
       });
       window.location.assign(deck.url);
     } catch (caught) {
       sessionStorage.removeItem(PENDING_GENERATION_KEY);
       setError(true);
-      setStatus(errorMessage(caught));
+      setStatus(studioError(caught));
       setBusy(false);
     }
   }
@@ -331,16 +192,29 @@ export function StudioPanel() {
               </select>
             </label>
             <label className="grid min-w-32 gap-1.5 text-[14px] font-medium">
-              {copy.palette}
+              {copy.visualStyle}
               <select
-                value={palette}
-                onChange={(event) => setPalette(event.target.value)}
+                value={style}
+                onChange={(event) => setStyle(event.target.value)}
                 className={inputClass}
               >
-                <option value="cobalt">{copy.cobalt}</option>
-                <option value="citrus">{copy.citrus}</option>
-                <option value="evergreen">{copy.evergreen}</option>
-                <option value="midnight">{copy.midnight}</option>
+                {themes.some((theme) => theme.studioReady) && (
+                  <optgroup label={copy.savedThemes}>
+                    {themes
+                      .filter((theme) => theme.studioReady)
+                      .map((theme) => (
+                        <option key={theme.id} value={`theme:${theme.id}`}>
+                          {theme.name}
+                        </option>
+                      ))}
+                  </optgroup>
+                )}
+                <optgroup label={copy.quickStyles}>
+                  <option value="builtin:cobalt">{copy.cobalt}</option>
+                  <option value="builtin:citrus">{copy.citrus}</option>
+                  <option value="builtin:evergreen">{copy.evergreen}</option>
+                  <option value="builtin:midnight">{copy.midnight}</option>
+                </optgroup>
               </select>
             </label>
             <label className="grid min-w-28 gap-1.5 text-[14px] font-medium">
@@ -384,7 +258,7 @@ export function StudioPanel() {
               variant="outline"
               size="xs"
               className="h-7 text-[12.5px]"
-              onClick={() => openModel()}
+              onClick={() => openManager()}
             >
               <Plus /> {copy.addModel}
             </Button>
@@ -409,7 +283,10 @@ export function StudioPanel() {
                   <button
                     type="button"
                     aria-pressed={active}
-                    onClick={() => chooseModel(model.id)}
+                    onClick={() => {
+                      choose(model.id);
+                      setStatus('');
+                    }}
                     className="min-w-0 flex-1 text-start outline-none focus-visible:ring-2 focus-visible:ring-ring/30"
                   >
                     <span className="flex items-center gap-1.5 truncate text-[14px] font-medium">
@@ -425,7 +302,7 @@ export function StudioPanel() {
                     variant="ghost"
                     size="xs"
                     className="h-7 text-[12.5px]"
-                    onClick={() => openModel(model)}
+                    onClick={() => openManager(model)}
                     aria-label={`${copy.edit} ${model.name}`}
                   >
                     {copy.edit}
@@ -438,90 +315,9 @@ export function StudioPanel() {
             <KeyRound className="mt-0.5 size-3 shrink-0" />
             {copy.keyMemory}
           </p>
+          {modelsError && <p className="mt-3 text-[12.5px] text-destructive">{modelsError}</p>}
         </div>
       </div>
-
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
-          <form onSubmit={saveModel}>
-            <DialogHeader className="text-start">
-              <DialogTitle>{editingId ? copy.editModel : copy.addAModel}</DialogTitle>
-              <DialogDescription>{copy.connectionDescription}</DialogDescription>
-            </DialogHeader>
-            <div className="mt-5 grid gap-4">
-              {(
-                [
-                  ['name', copy.connectionName, 'My model', 'text'],
-                  ['baseUrl', copy.baseUrl, 'https://api.example.com/v1', 'url'],
-                  ['model', copy.modelName, 'model-name', 'text'],
-                  ['apiKey', copy.apiKey, copy.keyPlaceholder, 'password'],
-                ] as const
-              ).map(([key, label, placeholder, type]) => (
-                <label key={key} className="grid gap-1.5 text-[14px] font-medium">
-                  {label}
-                  <input
-                    type={type}
-                    dir={key === 'name' ? 'auto' : 'ltr'}
-                    value={form[key]}
-                    onChange={(event) => setForm({ ...form, [key]: event.target.value })}
-                    placeholder={
-                      key === 'apiKey' &&
-                      editingId &&
-                      models.find((item) => item.id === editingId)?.hasKey
-                        ? copy.keepKeyPlaceholder
-                        : placeholder
-                    }
-                    required={key !== 'apiKey'}
-                    maxLength={key === 'name' ? 60 : key === 'model' ? 120 : undefined}
-                    autoComplete={key === 'apiKey' ? 'off' : undefined}
-                    className={inputClass}
-                  />
-                </label>
-              ))}
-            </div>
-            <p className="mt-3 text-[12.5px] leading-5 text-muted-foreground">
-              {copy.localDetails}
-            </p>
-            {dialogStatus && (
-              <p
-                role="status"
-                aria-live="polite"
-                className="mt-3 text-[13.5px] text-muted-foreground"
-              >
-                {dialogStatus}
-              </p>
-            )}
-            <DialogFooter className="mt-4 items-center">
-              {editingId && (
-                <>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={deleteModel}
-                    disabled={dialogBusy}
-                    className="text-destructive sm:me-auto"
-                  >
-                    {copy.delete}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={testModel}
-                    disabled={dialogBusy}
-                  >
-                    {copy.testConnection}
-                  </Button>
-                </>
-              )}
-              <Button type="submit" size="sm" disabled={dialogBusy}>
-                {dialogBusy ? copy.saving : copy.saveModel}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
     </section>
   );
 }

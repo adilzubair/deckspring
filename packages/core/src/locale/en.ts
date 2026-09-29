@@ -521,10 +521,22 @@ export const en: Locale = {
 
   themes: {
     title: 'Themes',
+    createTheme: 'Create theme',
+    editTheme: 'Edit theme',
+    importIntoStudio: 'Import into Studio',
+    duplicateTheme: 'Duplicate',
+    deleteTheme: 'Delete',
+    repairPreview: 'Repair preview',
+    repairComplete: 'Theme preview repaired.',
+    deleteComplete: 'Theme deleted.',
+    deleteConfirm:
+      'Deleting this theme will detach it from {count} decks. Their visual source will be preserved. Continue?',
     noThemesTitle: 'No themes yet',
+    studioEmptyHint: 'Create a reusable visual system here, then use it when generating any deck.',
     noThemesHintPrefix: 'Run ',
     noThemesHintSuffix: ' to author one — a markdown file under themes/ plus a sibling demo slide.',
     noDemoYet: 'No demo yet',
+    studioNoDemoHint: 'Repair the preview to regenerate its trusted three-page specimen.',
     noDemoHintPrefix: 'Re-run ',
     noDemoHintSuffix: ' for this theme to generate a preview slide.',
     backToGallery: 'Back to themes',

@@ -1,5 +1,13 @@
 const REQUEST_TIMEOUT_MS = 120_000;
 
+export function isLocalModelUrl(baseUrl) {
+  try {
+    return ['localhost', '127.0.0.1', '[::1]'].includes(new URL(baseUrl).hostname);
+  } catch {
+    return false;
+  }
+}
+
 export function chatCompletionsUrl(baseUrl) {
   if (typeof baseUrl !== 'string' || !baseUrl.trim()) {
     throw new Error('Enter an API base URL.');
@@ -36,6 +44,9 @@ export function textFromCompletion(response) {
 }
 
 export async function callModel(profile, key, messages, maxTokens = 6500) {
+  if (!key && !isLocalModelUrl(profile.baseUrl)) {
+    throw new Error('Enter this model’s API key to continue.');
+  }
   const endpoint = chatCompletionsUrl(profile.baseUrl);
   let response;
   try {
@@ -92,6 +103,6 @@ export function parseModelJson(text) {
         return JSON.parse(clean.slice(start, end + 1));
       } catch {}
     }
-    throw new Error('The model did not return valid deck JSON. Try again or choose another model.');
+    throw new Error('The model did not return valid JSON. Try again or choose another model.');
   }
 }

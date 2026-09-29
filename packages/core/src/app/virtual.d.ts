@@ -40,8 +40,11 @@ declare module 'virtual:deckspring/themes' {
     id: string;
     name: string;
     description: string;
+    mode: 'light' | 'dark' | null;
     body: string;
     hasDemo: boolean;
+    studioReady: boolean;
+    studioSpec: import('./lib/themes').ThemeSpecV1 | null;
   };
 
   export const themes: ThemeMeta[];

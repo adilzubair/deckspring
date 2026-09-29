@@ -8,10 +8,28 @@ import { createServer } from 'vite';
 import { buildCommentProposal, makeCommentPrompt, readComments } from './comment-edits.mjs';
 import { deckPrompt, makeDeckId, renderDeckSource, THEMES, validateDeck } from './deck.mjs';
 import { callModel, chatCompletionsUrl, parseModelJson } from './model.mjs';
+import {
+  detachThemeReference,
+  makeThemeId,
+  readThemeBundle,
+  repairThemeDemo,
+  sourceUsesTheme,
+  themePrompt,
+  validateThemeId,
+  validateThemeSpec,
+  writeThemeBundle,
+} from './theme.mjs';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
-const SLIDES_ROOT = path.join(ROOT, 'slides');
-const LOCAL_ROOT = path.join(ROOT, '.local');
+const SLIDES_ROOT = path.resolve(
+  process.env.DECKSPRING_STUDIO_SLIDES_ROOT ?? path.join(ROOT, 'slides'),
+);
+const THEMES_ROOT = path.resolve(
+  process.env.DECKSPRING_STUDIO_THEMES_ROOT ?? path.join(ROOT, 'themes'),
+);
+const LOCAL_ROOT = path.resolve(
+  process.env.DECKSPRING_STUDIO_LOCAL_ROOT ?? path.join(ROOT, '.local'),
+);
 const MODELS_FILE = path.join(LOCAL_ROOT, 'models.json');
 const EXPORTS_ROOT = path.join(LOCAL_ROOT, 'exports');
 const BIOME_BIN = path.join(ROOT, 'node_modules', '@biomejs', 'biome', 'bin', 'biome');
@@ -146,13 +164,64 @@ async function formatDeck(file) {
   });
 }
 
-async function handleApi(req, res) {
+async function slideEntries() {
+  const entries = await fs.readdir(SLIDES_ROOT, { withFileTypes: true }).catch((error) => {
+    if (error.code === 'ENOENT') return [];
+    throw error;
+  });
+  const slides = [];
+  for (const entry of entries) {
+    if (!entry.isDirectory() || !/^[a-z0-9_-]{1,100}$/i.test(entry.name)) continue;
+    const file = path.join(SLIDES_ROOT, entry.name, 'index.tsx');
+    const source = await fs.readFile(file, 'utf8').catch((error) => {
+      if (error.code === 'ENOENT') return null;
+      throw error;
+    });
+    if (source !== null) slides.push({ id: entry.name, file, source });
+  }
+  return slides;
+}
+
+async function themeUsage(themeId) {
+  return (await slideEntries()).filter((slide) => sourceUsesTheme(slide.source, themeId));
+}
+
+function invalidateThemes() {
+  const module = viteServer?.moduleGraph.getModuleById('\0virtual:deckspring/themes');
+  if (module) viteServer.moduleGraph.invalidateModule(module);
+  viteServer?.ws.send({ type: 'full-reload' });
+}
+
+function checkedThemeSource(body) {
+  if (!body?.source || typeof body.source !== 'object') {
+    throw new Error('Choose how to create this theme.');
+  }
+  return body.source;
+}
+
+export async function handleApi(req, res) {
   const url = new URL(req.url ?? '/', 'http://studio.local');
   const route = url.pathname;
   const method = req.method ?? 'GET';
   try {
     if (method === 'GET' && route === '/models') {
       return sendJson(res, 200, { models: profiles.map(publicProfile) });
+    }
+    const themeMatch = route.match(/^\/themes\/([a-z0-9-]{1,64})$/);
+    if (method === 'GET' && themeMatch) {
+      const bundle = await readThemeBundle(THEMES_ROOT, themeMatch[1]).catch((error) => {
+        if (error.code === 'ENOENT') return null;
+        throw error;
+      });
+      if (!bundle) return sendJson(res, 404, { error: 'Theme not found.' });
+      const usedBy = (await themeUsage(bundle.id)).map((slide) => slide.id);
+      return sendJson(res, 200, {
+        id: bundle.id,
+        spec: bundle.spec,
+        markdown: bundle.markdown,
+        hasDemo: bundle.demo !== null,
+        usedBy,
+      });
     }
     const jobMatch = route.match(/^\/jobs\/([a-f0-9-]{36})$/);
     if (method === 'GET' && jobMatch) {
@@ -173,6 +242,130 @@ async function handleApi(req, res) {
       await fs.mkdir(EXPORTS_ROOT, { recursive: true });
       await fs.writeFile(path.join(EXPORTS_ROOT, `${slideId}.pptx`), file, { mode: 0o600 });
       return sendJson(res, 200, { ok: true });
+    }
+
+    if (method === 'POST' && route === '/themes/propose') {
+      const body = await readJson(req);
+      const profile = profiles.find((item) => item.id === body.modelId);
+      if (!profile) throw new Error('Choose a model first.');
+      const source = checkedThemeSource(body);
+      let promptSource;
+      if (source.kind === 'prompt') {
+        const prompt = typeof source.prompt === 'string' ? source.prompt.trim() : '';
+        if (prompt.length < 10 || prompt.length > 4000) {
+          throw new Error('Describe the theme in 10 to 4,000 characters.');
+        }
+        promptSource = { kind: 'prompt', prompt };
+      } else if (source.kind === 'slide') {
+        if (typeof source.slideId !== 'string' || !/^[a-z0-9_-]{1,100}$/i.test(source.slideId)) {
+          throw new Error('Choose a valid deck.');
+        }
+        const file = path.join(SLIDES_ROOT, source.slideId, 'index.tsx');
+        const content = await fs.readFile(file, 'utf8').catch((error) => {
+          if (error.code === 'ENOENT') throw new Error('Deck not found.');
+          throw error;
+        });
+        promptSource = { kind: 'slide', content: content.slice(0, 120_000) };
+      } else if (source.kind === 'theme') {
+        const themeId = validateThemeId(source.themeId);
+        const bundle = await readThemeBundle(THEMES_ROOT, themeId);
+        promptSource = {
+          kind: 'theme',
+          content: `${bundle.markdown}\n\n${bundle.demo ?? ''}`.slice(0, 140_000),
+        };
+      } else {
+        throw new Error('Choose a valid theme source.');
+      }
+      const answer = await callModel(
+        profile,
+        keys.get(profile.id),
+        [
+          {
+            role: 'system',
+            content: 'You are a presentation design-system editor. Return JSON only.',
+          },
+          { role: 'user', content: themePrompt(promptSource) },
+        ],
+        3500,
+      );
+      const spec = validateThemeSpec(parseModelJson(answer));
+      return sendJson(res, 200, { spec, suggestedId: makeThemeId(spec.name) });
+    }
+
+    if (method === 'POST' && route === '/themes') {
+      const body = await readJson(req);
+      const id = validateThemeId(body.id);
+      const result = await writeThemeBundle(THEMES_ROOT, id, body.spec, {
+        formatDemo: formatDeck,
+      });
+      invalidateThemes();
+      return sendJson(res, 201, { id: result.id, url: `/themes/${encodeURIComponent(id)}` });
+    }
+
+    const duplicateThemeMatch = route.match(/^\/themes\/([a-z0-9-]{1,64})\/duplicate$/);
+    if (method === 'POST' && duplicateThemeMatch) {
+      const body = await readJson(req);
+      const source = await readThemeBundle(THEMES_ROOT, duplicateThemeMatch[1]);
+      if (!source.spec) throw new Error('Import this theme into Studio before duplicating it.');
+      const name =
+        typeof body.name === 'string' && body.name.trim()
+          ? body.name.trim()
+          : `${source.spec.name} Copy`;
+      const id = validateThemeId(body.id || makeThemeId(name));
+      const result = await writeThemeBundle(
+        THEMES_ROOT,
+        id,
+        { ...source.spec, name },
+        {
+          formatDemo: formatDeck,
+        },
+      );
+      invalidateThemes();
+      return sendJson(res, 201, { id: result.id, url: `/themes/${encodeURIComponent(id)}/edit` });
+    }
+
+    const repairThemeMatch = route.match(/^\/themes\/([a-z0-9-]{1,64})\/repair$/);
+    if (method === 'POST' && repairThemeMatch) {
+      await readJson(req);
+      await repairThemeDemo(THEMES_ROOT, repairThemeMatch[1], { formatDemo: formatDeck });
+      invalidateThemes();
+      return sendJson(res, 200, { ok: true });
+    }
+
+    if (themeMatch && method === 'PUT') {
+      const body = await readJson(req);
+      const result = await writeThemeBundle(THEMES_ROOT, themeMatch[1], body.spec, {
+        replace: true,
+        formatDemo: formatDeck,
+      });
+      invalidateThemes();
+      return sendJson(res, 200, { id: result.id, url: `/themes/${encodeURIComponent(result.id)}` });
+    }
+
+    if (themeMatch && method === 'DELETE') {
+      const bundle = await readThemeBundle(THEMES_ROOT, themeMatch[1]);
+      const usedBy = await themeUsage(themeMatch[1]);
+      const detached = usedBy.map((slide) => ({
+        ...slide,
+        next: detachThemeReference(slide.source, themeMatch[1]),
+      }));
+      if (detached.some((slide) => slide.next === slide.source)) {
+        throw new Error('Could not safely detach this theme from every deck.');
+      }
+      const markdownPath = path.join(THEMES_ROOT, `${themeMatch[1]}.md`);
+      const demoPath = path.join(THEMES_ROOT, `${themeMatch[1]}.demo.tsx`);
+      try {
+        for (const slide of detached) await fs.writeFile(slide.file, slide.next, 'utf8');
+        await fs.rm(markdownPath, { force: true });
+        await fs.rm(demoPath, { force: true });
+      } catch (error) {
+        await Promise.all(detached.map((slide) => fs.writeFile(slide.file, slide.source, 'utf8')));
+        await fs.writeFile(markdownPath, bundle.markdown, 'utf8');
+        if (bundle.demo !== null) await fs.writeFile(demoPath, bundle.demo, 'utf8');
+        throw error;
+      }
+      invalidateThemes();
+      return sendJson(res, 200, { ok: true, detached: detached.map((slide) => slide.id) });
     }
 
     if (method === 'POST' && route === '/comments/propose') {
@@ -314,7 +507,7 @@ async function handleApi(req, res) {
       if (!profile) throw new Error('Choose a model first.');
       const prompt = typeof body.prompt === 'string' ? body.prompt.trim() : '';
       const pageCount = Number(body.pageCount);
-      const theme = body.theme;
+      const style = body.style ?? (body.theme ? { kind: 'builtin', id: body.theme } : null);
       const language = body.language ?? 'en';
       const requestId = body.requestId;
       if (prompt.length < 10 || prompt.length > 4000) {
@@ -323,7 +516,16 @@ async function handleApi(req, res) {
       if (!Number.isInteger(pageCount) || pageCount < 3 || pageCount > 12) {
         throw new Error('Choose between 3 and 12 pages.');
       }
-      if (!Object.hasOwn(THEMES, theme)) throw new Error('Choose a valid visual style.');
+      let resolvedStyle;
+      if (style?.kind === 'builtin' && Object.hasOwn(THEMES, style.id)) {
+        resolvedStyle = style.id;
+      } else if (style?.kind === 'theme' && typeof style.id === 'string') {
+        const bundle = await readThemeBundle(THEMES_ROOT, validateThemeId(style.id));
+        if (!bundle.spec) throw new Error('Import this theme into Studio before using it.');
+        resolvedStyle = { kind: 'theme', id: bundle.id, spec: bundle.spec };
+      } else {
+        throw new Error('Choose a valid visual style.');
+      }
       if (language !== 'en' && language !== 'ar') throw new Error('Choose English or Arabic.');
       if (typeof requestId !== 'string' || !/^[a-f0-9-]{36}$/.test(requestId)) {
         throw new Error('Generation request ID is invalid.');
@@ -346,7 +548,7 @@ async function handleApi(req, res) {
         const id = makeDeckId(deck.title);
         await fs.mkdir(path.join(SLIDES_ROOT, id), { recursive: false });
         const file = path.join(SLIDES_ROOT, id, 'index.tsx');
-        await fs.writeFile(file, renderDeckSource(deck, theme, undefined, language), {
+        await fs.writeFile(file, renderDeckSource(deck, resolvedStyle, undefined, language), {
           flag: 'wx',
         });
         await formatDeck(file);
@@ -381,17 +583,25 @@ function studioPlugin() {
   };
 }
 
-await loadProfiles();
-await fs.mkdir(SLIDES_ROOT, { recursive: true });
-const port = Number(process.env.DECKSPRING_STUDIO_PORT ?? 5173);
-if (!Number.isInteger(port) || port < 1 || port > 65535) {
-  throw new Error('DECKSPRING_STUDIO_PORT must be a valid port number.');
+export async function startStudio() {
+  await loadProfiles();
+  await fs.mkdir(SLIDES_ROOT, { recursive: true });
+  await fs.mkdir(THEMES_ROOT, { recursive: true });
+  const port = Number(process.env.DECKSPRING_STUDIO_PORT ?? 5173);
+  if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new Error('DECKSPRING_STUDIO_PORT must be a valid port number.');
+  }
+  const config = await createViteConfig({ userCwd: ROOT });
+  const server = await createServer({
+    ...config,
+    plugins: [...config.plugins, studioPlugin()],
+    server: { ...config.server, host: '127.0.0.1', port, strictPort: true },
+  });
+  await server.listen();
+  console.log(`\nDeckspring Studio: http://127.0.0.1:${port}/\n`);
+  return server;
 }
-const config = await createViteConfig({ userCwd: ROOT });
-const server = await createServer({
-  ...config,
-  plugins: [...config.plugins, studioPlugin()],
-  server: { ...config.server, host: '127.0.0.1', port, strictPort: true },
-});
-await server.listen();
-console.log(`\nDeckspring Studio: http://127.0.0.1:${port}/\n`);
+
+if (path.resolve(process.argv[1] ?? '') === fileURLToPath(import.meta.url)) {
+  await startStudio();
+}
