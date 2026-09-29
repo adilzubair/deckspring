@@ -79,14 +79,71 @@ test('offers a keyboard-accessible empty-state CTA and both theme source modes',
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/\/themes\/new$/);
 
-  await expect(page.getByRole('button', { name: 'Describe a theme' })).toHaveAttribute(
-    'aria-pressed',
+  await expect(page.getByRole('tab', { name: 'Describe a theme' })).toHaveAttribute(
+    'aria-selected',
     'true',
   );
-  await page.getByRole('button', { name: 'Extract from deck' }).click();
+  await page.getByRole('tab', { name: 'Extract from deck' }).click();
   await expect(page.getByLabel('Choose a deck')).toBeVisible();
-  await page.getByRole('button', { name: 'Describe a theme' }).click();
+  await page.getByRole('tab', { name: 'Describe a theme' }).click();
   await expect(page.getByLabel('What should this theme feel like?')).toBeVisible();
+});
+
+test('keeps an unsaved draft when navigation is canceled and leaves when discarded', async ({
+  page,
+}) => {
+  await mockStudio(page);
+  await page.goto('/themes');
+  await page.getByRole('button', { name: 'Create theme' }).first().click();
+  await page
+    .getByLabel('What should this theme feel like?')
+    .fill('A deliberate, quiet editorial theme.');
+
+  await page
+    .getByRole('complementary')
+    .getByRole('button', { name: 'Slides', exact: true })
+    .last()
+    .click();
+  await expect(page.getByRole('dialog')).toContainText('Discard the unsaved theme changes?');
+  await page.getByRole('button', { name: 'Cancel' }).click();
+  await expect(page).toHaveURL(/\/themes\/new$/);
+  await expect(page.getByLabel('What should this theme feel like?')).toHaveValue(
+    'A deliberate, quiet editorial theme.',
+  );
+
+  await page.goBack();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await page.getByRole('button', { name: 'Discard changes' }).click();
+  await expect(page).toHaveURL(/\/themes$/);
+});
+
+test('guards the mobile menu and uses Arabic copy for the unsaved draft dialog', async ({
+  page,
+}) => {
+  await mockStudio(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/themes/new');
+  await page.getByRole('button', { name: 'Change language' }).click();
+  await page.getByRole('menuitem', { name: 'العربية' }).click();
+  await page.getByLabel('كيف يجب أن تبدو هذه السمة؟').fill('سمة عربية هادئة بخطوط واضحة.');
+  await page.getByRole('button', { name: 'القائمة' }).click();
+  await page.getByRole('menuitem', { name: /الشرائح/ }).click();
+  await expect(page.getByRole('dialog')).toContainText('هل تريد تجاهل تغييرات السمة غير المحفوظة؟');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
+    true,
+  );
+});
+
+test('shows the live preview before theme fields on mobile', async ({ page }) => {
+  await mockStudio(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/themes/new');
+  await page.getByLabel('What should this theme feel like?').fill('A precise editorial system.');
+  await page.getByRole('button', { name: 'Generate draft' }).click();
+  const preview = await page.getByText('Live preview').boundingBox();
+  const fields = await page.getByRole('heading', { name: 'Identity' }).boundingBox();
+  expect(preview?.y).toBeLessThan(fields?.y ?? 0);
+  await expect(page.getByText('1 / 3').last()).toHaveAttribute('dir', 'ltr');
 });
 
 test('edits a generated theme against the preview and saves explicit data', async ({ page }) => {
@@ -211,8 +268,10 @@ export default [Preview];
     const repairRequest = page.waitForRequest((request) =>
       request.url().endsWith('/__studio/themes/signal-frame/repair'),
     );
+    const repairedPage = page.waitForEvent('load');
     await page.getByRole('button', { name: 'Repair preview' }).click();
     await repairRequest;
+    await repairedPage;
 
     await page.goto('/themes/legacy');
     await expect(page.getByRole('button', { name: 'Import into Studio' })).toBeVisible();

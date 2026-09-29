@@ -165,6 +165,8 @@ export const studioCopy = {
     themeDraftFailed: 'Could not generate the theme draft.',
     themeSaveFailed: 'Could not save the theme.',
     themeUnsavedConfirm: 'Discard the unsaved theme changes?',
+    themeUnsavedDescription: 'Your draft will be lost if you leave this page.',
+    themeDiscard: 'Discard changes',
   },
   ar: {
     createTitle: 'إنشاء بالذكاء الاصطناعي',
@@ -331,5 +333,7 @@ export const studioCopy = {
     themeDraftFailed: 'تعذّر إنشاء مسودة السمة.',
     themeSaveFailed: 'تعذّر حفظ السمة.',
     themeUnsavedConfirm: 'هل تريد تجاهل تغييرات السمة غير المحفوظة؟',
+    themeUnsavedDescription: 'ستفقد المسودة إذا غادرت هذه الصفحة.',
+    themeDiscard: 'تجاهل التغييرات',
   },
 } as const;

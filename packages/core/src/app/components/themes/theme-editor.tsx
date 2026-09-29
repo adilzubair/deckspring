@@ -6,10 +6,23 @@ import {
   type ReactElement,
   type ReactNode,
   useEffect,
+  useRef,
   useState,
 } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useBlocker, useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
 import { useLocale } from '@/lib/use-locale';
 import { SlidePageProvider } from '../../lib/page-context';
 import { slideIds } from '../../lib/slides';
@@ -21,7 +34,8 @@ import { modelIsReady, useStudioModels } from '../studio/studio-models';
 
 const inputClass =
   'h-10 w-full rounded-[6px] border border-input bg-background px-3 text-[14px] text-foreground outline-none transition-colors placeholder:text-muted-foreground/65 focus:border-foreground/30 focus:ring-2 focus:ring-ring/20 disabled:cursor-not-allowed disabled:bg-muted/50 disabled:text-muted-foreground';
-const textareaClass = `${inputClass} h-auto min-h-24 resize-y py-2.5 leading-relaxed`;
+const fieldClass = 'h-10 px-3 text-[14px]';
+const fieldTextareaClass = 'min-h-24 resize-y px-3 py-2.5 text-[14px]';
 
 type ThemeResponse = {
   id: string;
@@ -56,6 +70,15 @@ export function ThemeEditor({ themeId }: { themeId?: string }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [dirty, setDirty] = useState(false);
+  const dirtyRef = useRef(dirty);
+  dirtyRef.current = dirty;
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      dirty &&
+      (currentLocation.pathname !== nextLocation.pathname ||
+        currentLocation.search !== nextLocation.search ||
+        currentLocation.hash !== nextLocation.hash),
+  );
 
   useEffect(() => {
     const sourceId = themeId ?? duplicateId;
@@ -86,17 +109,16 @@ export function ThemeEditor({ themeId }: { themeId?: string }) {
   }, [themeId, duplicateId]);
 
   useEffect(() => {
-    if (!dirty) return;
     const onBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (!dirtyRef.current) return;
       event.preventDefault();
       event.returnValue = '';
     };
     window.addEventListener('beforeunload', onBeforeUnload);
     return () => window.removeEventListener('beforeunload', onBeforeUnload);
-  }, [dirty]);
+  }, []);
 
   const leave = () => {
-    if (dirty && !window.confirm(copy.themeUnsavedConfirm)) return;
     navigate(themeId ? `/themes/${encodeURIComponent(themeId)}` : '/themes');
   };
 
@@ -151,6 +173,7 @@ export function ThemeEditor({ themeId }: { themeId?: string }) {
         themeId ? `/themes/${encodeURIComponent(themeId)}` : '/themes',
         themeId ? { spec } : { id, spec },
       );
+      dirtyRef.current = false;
       setDirty(false);
       window.location.assign(result.url);
     } catch (caught) {
@@ -171,7 +194,7 @@ export function ThemeEditor({ themeId }: { themeId?: string }) {
     <div className="flex flex-col gap-7">
       <header className="flex flex-wrap items-start gap-4 border-b border-hairline pb-6">
         <Button type="button" variant="ghost" size="sm" className="-ms-2" onClick={leave}>
-          <ArrowLeft />
+          <ArrowLeft className="rtl:rotate-180" />
           {copy.themeBack}
         </Button>
         <div className="basis-full md:ms-0 md:basis-auto md:flex-1">
@@ -202,7 +225,10 @@ export function ThemeEditor({ themeId }: { themeId?: string }) {
           sourceMode={sourceMode}
           setSourceMode={setSourceMode}
           prompt={prompt}
-          setPrompt={setPrompt}
+          setPrompt={(value) => {
+            setPrompt(value);
+            setDirty(true);
+          }}
           slideId={slideId}
           setSlideId={setSlideId}
           models={models}
@@ -216,21 +242,23 @@ export function ThemeEditor({ themeId }: { themeId?: string }) {
         />
       ) : (
         <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,440px)_minmax(0,1fr)]">
-          <ThemeFields
-            copy={copy}
-            spec={spec}
-            id={id}
-            idLocked={Boolean(themeId)}
-            onId={(value) => {
-              setId(value.toLowerCase().replace(/[^a-z0-9-]/g, ''));
-              setDirty(true);
-            }}
-            onChange={(next) => {
-              setSpec(next);
-              setDirty(true);
-            }}
-          />
-          <div className="min-w-0 xl:sticky xl:top-8">
+          <div className="order-2 min-w-0 xl:order-1">
+            <ThemeFields
+              copy={copy}
+              spec={spec}
+              id={id}
+              idLocked={Boolean(themeId)}
+              onId={(value) => {
+                setId(value.toLowerCase().replace(/[^a-z0-9-]/g, ''));
+                setDirty(true);
+              }}
+              onChange={(next) => {
+                setSpec(next);
+                setDirty(true);
+              }}
+            />
+          </div>
+          <div className="order-1 min-w-0 xl:sticky xl:top-8 xl:order-2">
             <p className="mb-3 text-[13px] font-medium text-muted-foreground">
               {copy.themePreview}
             </p>
@@ -247,6 +275,27 @@ export function ThemeEditor({ themeId }: { themeId?: string }) {
           {error}
         </p>
       )}
+      <Dialog
+        open={blocker.state === 'blocked'}
+        onOpenChange={(open) => {
+          if (!open && blocker.state === 'blocked') blocker.reset();
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{copy.themeUnsavedConfirm}</DialogTitle>
+            <DialogDescription>{copy.themeUnsavedDescription}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => blocker.reset?.()}>
+              {copy.cancel}
+            </Button>
+            <Button type="button" variant="destructive" onClick={() => blocker.proceed?.()}>
+              {copy.themeDiscard}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -287,115 +336,99 @@ function ThemeSource({
   generateDraft: () => void;
 }) {
   return (
-    <div className="mx-auto w-full max-w-3xl border-y border-hairline py-7">
-      {legacy ? (
-        <div className="mb-6">
-          <h2 className="font-heading text-[19px] font-semibold">{copy.themeImportTitle}</h2>
-          <p className="mt-1 max-w-2xl text-[14px] leading-relaxed text-muted-foreground">
-            {copy.themeImportDescription}
-          </p>
-        </div>
-      ) : (
-        <>
-          <div className="mb-6 inline-flex rounded-[6px] bg-muted p-1">
-            <SourceButton active={sourceMode === 'prompt'} onClick={() => setSourceMode('prompt')}>
-              {copy.themeDescribe}
-            </SourceButton>
-            <SourceButton active={sourceMode === 'slide'} onClick={() => setSourceMode('slide')}>
-              {copy.themeExtract}
-            </SourceButton>
+    <Card className="mx-auto w-full max-w-3xl gap-0 rounded-[8px] py-0 shadow-edge">
+      <CardContent className="px-5 py-6 md:px-6">
+        {legacy ? (
+          <div className="mb-6">
+            <h2 className="font-heading text-[19px] font-semibold">{copy.themeImportTitle}</h2>
+            <p className="mt-1 max-w-2xl text-[14px] leading-relaxed text-muted-foreground">
+              {copy.themeImportDescription}
+            </p>
           </div>
-          {sourceMode === 'prompt' ? (
-            <label className="grid gap-2 text-[14px] font-medium">
-              {copy.themePromptLabel}
-              <textarea
-                value={prompt}
-                onChange={(event) => setPrompt(event.target.value)}
-                minLength={10}
-                maxLength={4000}
-                rows={6}
-                placeholder={copy.themePromptPlaceholder}
-                className={textareaClass}
-              />
-            </label>
-          ) : (
-            <label className="grid gap-2 text-[14px] font-medium">
-              {copy.themeDeckLabel}
-              <select
-                value={slideId}
-                onChange={(event) => setSlideId(event.target.value)}
-                className={inputClass}
-              >
-                {slideIds.map((candidate) => (
-                  <option key={candidate} value={candidate}>
-                    {candidate}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
-        </>
-      )}
-      <div className="mt-6 flex flex-wrap items-end gap-3 border-t border-hairline pt-6">
-        <label className="grid min-w-64 flex-1 gap-2 text-[14px] font-medium">
-          {copy.themeModelLabel}
-          <select
-            value={selectedId}
-            onChange={(event) => choose(event.target.value)}
-            disabled={modelsLoading || models.length === 0}
-            className={inputClass}
-          >
-            {models.length === 0 && <option value="">{copy.noModels}</option>}
-            {models.map((model) => (
-              <option key={model.id} value={model.id}>
-                {model.name} · {model.model}
-              </option>
-            ))}
-          </select>
-        </label>
-        <Button type="button" variant="outline" onClick={() => openManager()}>
-          {copy.addModel}
-        </Button>
-        {selected && (
-          <Button type="button" variant="outline" onClick={() => openManager(selected)}>
-            {copy.editModel}
-          </Button>
+        ) : (
+          <>
+            <Tabs
+              value={sourceMode}
+              onValueChange={(value) => setSourceMode(value as 'prompt' | 'slide')}
+            >
+              <TabsList className="mb-6">
+                <TabsTrigger value="prompt">{copy.themeDescribe}</TabsTrigger>
+                <TabsTrigger value="slide">{copy.themeExtract}</TabsTrigger>
+              </TabsList>
+            </Tabs>
+            {sourceMode === 'prompt' ? (
+              <label htmlFor="theme-source-prompt" className="grid gap-2 text-[14px] font-medium">
+                {copy.themePromptLabel}
+                <Textarea
+                  id="theme-source-prompt"
+                  dir="auto"
+                  value={prompt}
+                  onChange={(event) => setPrompt(event.target.value)}
+                  minLength={10}
+                  maxLength={4000}
+                  rows={6}
+                  placeholder={copy.themePromptPlaceholder}
+                  className={fieldTextareaClass}
+                />
+              </label>
+            ) : (
+              <label className="grid gap-2 text-[14px] font-medium">
+                {copy.themeDeckLabel}
+                <select
+                  value={slideId}
+                  onChange={(event) => setSlideId(event.target.value)}
+                  className={inputClass}
+                >
+                  {slideIds.map((candidate) => (
+                    <option key={candidate} value={candidate}>
+                      {candidate}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+          </>
         )}
-        <Button type="button" variant="brand" disabled={generating} onClick={generateDraft}>
-          {generating ? (
-            <Loader2 className="animate-spin motion-reduce:animate-none" />
-          ) : (
-            <Sparkles />
+        <div className="mt-6 flex flex-wrap items-end gap-3 border-t border-hairline pt-6">
+          <label className="grid min-w-64 flex-1 gap-2 text-[14px] font-medium">
+            {copy.themeModelLabel}
+            <select
+              value={selectedId}
+              onChange={(event) => choose(event.target.value)}
+              disabled={modelsLoading || models.length === 0}
+              className={inputClass}
+            >
+              {models.length === 0 && <option value="">{copy.noModels}</option>}
+              {models.map((model) => (
+                <option key={model.id} value={model.id}>
+                  {model.name} · {model.model}
+                </option>
+              ))}
+            </select>
+          </label>
+          <Button type="button" variant="outline" onClick={() => openManager()}>
+            {copy.addModel}
+          </Button>
+          {selected && (
+            <Button type="button" variant="outline" onClick={() => openManager(selected)}>
+              {copy.editModel}
+            </Button>
           )}
-          {generating
-            ? copy.themeGeneratingDraft
-            : legacy
-              ? copy.themeImportAction
-              : copy.themeGenerateDraft}
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-function SourceButton({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      aria-pressed={active}
-      onClick={onClick}
-      className={`rounded-[5px] px-3 py-1.5 text-[13px] font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring/30 ${active ? 'bg-card text-foreground shadow-edge' : 'text-muted-foreground hover:text-foreground'}`}
-    >
-      {children}
-    </button>
+          <Button type="button" variant="brand" disabled={generating} onClick={generateDraft}>
+            {generating ? (
+              <Loader2 className="animate-spin motion-reduce:animate-none" />
+            ) : (
+              <Sparkles />
+            )}
+            {generating
+              ? copy.themeGeneratingDraft
+              : legacy
+                ? copy.themeImportAction
+                : copy.themeGenerateDraft}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -421,29 +454,32 @@ function ThemeFields({
         <h2 className="mb-4 font-heading text-[16px] font-semibold">{copy.themeIdentity}</h2>
         <div className="grid gap-4">
           <Field label={copy.themeName}>
-            <input
+            <Input
               value={spec.name}
+              dir="auto"
               maxLength={80}
               onChange={(event) => onChange({ ...spec, name: event.target.value })}
-              className={inputClass}
+              className={fieldClass}
             />
           </Field>
           <Field label={copy.themeId} hint={copy.themeIdHelp}>
-            <input
+            <Input
               value={id}
+              dir="ltr"
               disabled={idLocked}
               maxLength={64}
               onChange={(event) => onId(event.target.value)}
-              className={inputClass}
+              className={fieldClass}
             />
           </Field>
           <Field label={copy.themeDescription}>
-            <textarea
+            <Textarea
               value={spec.description}
+              dir="auto"
               maxLength={180}
               rows={3}
               onChange={(event) => onChange({ ...spec, description: event.target.value })}
-              className={textareaClass}
+              className={fieldTextareaClass}
             />
           </Field>
           <div className="grid grid-cols-2 gap-3">
@@ -499,7 +535,7 @@ function ThemeFields({
         <h2 className="mb-4 font-heading text-[16px] font-semibold">{copy.themeTypography}</h2>
         <div className="grid gap-3">
           <Field label={copy.themeDisplayFont}>
-            <input
+            <Input
               value={spec.typography.display}
               onChange={(event) =>
                 onChange({
@@ -507,25 +543,25 @@ function ThemeFields({
                   typography: { ...spec.typography, display: event.target.value },
                 })
               }
-              className={inputClass}
+              className={fieldClass}
             />
           </Field>
           <Field label={copy.themeBodyFont}>
-            <input
+            <Input
               value={spec.typography.body}
               onChange={(event) =>
                 onChange({ ...spec, typography: { ...spec.typography, body: event.target.value } })
               }
-              className={inputClass}
+              className={fieldClass}
             />
           </Field>
           <Field label={copy.themeMonoFont}>
-            <input
+            <Input
               value={spec.typography.mono}
               onChange={(event) =>
                 onChange({ ...spec, typography: { ...spec.typography, mono: event.target.value } })
               }
-              className={inputClass}
+              className={fieldClass}
             />
           </Field>
           <div className="grid grid-cols-2 gap-3">
@@ -622,12 +658,13 @@ function ThemeFields({
 
       <section className={sectionClass}>
         <Field label={copy.themeAesthetic}>
-          <textarea
+          <Textarea
             value={spec.aesthetic}
+            dir="auto"
             maxLength={900}
             rows={6}
             onChange={(event) => onChange({ ...spec, aesthetic: event.target.value })}
-            className={textareaClass}
+            className={fieldTextareaClass}
           />
         </Field>
       </section>
@@ -695,14 +732,14 @@ function NumberField({
 }) {
   return (
     <Field label={label}>
-      <input
+      <Input
         type="number"
         value={value}
         min={min}
         max={max}
         step={step}
         onChange={(event) => onChange(Number(event.target.value))}
-        className={inputClass}
+        className={fieldClass}
       />
     </Field>
   );
@@ -729,6 +766,7 @@ function ColorField({
         />
         <input
           aria-label={`${label} hex`}
+          dir="ltr"
           value={value}
           maxLength={7}
           onChange={(event) => onChange(event.target.value.toUpperCase())}
@@ -769,7 +807,9 @@ function ThemeDraftPreview({
         >
           <ChevronLeft className={rtl ? 'rotate-180' : undefined} />
         </Button>
-        <span className="folio">{page + 1} / 3</span>
+        <span className="folio" dir="ltr">
+          {page + 1} / 3
+        </span>
         <Button
           type="button"
           variant="outline"
