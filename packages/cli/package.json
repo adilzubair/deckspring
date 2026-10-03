@@ -41,7 +41,7 @@
     "url": "https://github.com/adilzubair/deckspring/issues"
   },
   "dependencies": {
-    "@clack/prompts": "^1.7.0",
+    "@clack/prompts": "^1.8.1",
     "chalk": "^6.0.0",
     "commander": "^15.0.0"
   },
